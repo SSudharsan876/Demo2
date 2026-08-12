@@ -124,93 +124,66 @@ imageInput.addEventListener("change", function(e){
 
 // Submit design
 
-window.submitDesign = async function(){
+window.submitDesign = async function () {
 
     const participant = localStorage.getItem("currentUser") || "Guest";
-
     const email = localStorage.getItem("currentEmail") || "";
-
     const prompt = document.getElementById("prompt").value.trim();
 
-    const file = imageInput.files[0];
+    const file = document.getElementById("imageUpload").files[0];
 
-    if(!file){
-
+    if (!file) {
         alert("Please upload the generated image first.");
-
         return;
-
     }
 
     const reader = new FileReader();
 
-    reader.onload = function(event){
+    reader.onload = function (e) {
 
         const img = new Image();
 
-        img.onload = async function(){
+        img.onload = async function () {
 
-            try{
+            try {
 
-                // Compress image
-
+                // Compress image before saving
                 const canvas = document.createElement("canvas");
-
                 const maxWidth = 600;
+                const scale = Math.min(1, maxWidth / img.width);
 
-                const scale = maxWidth / img.width;
-
-                canvas.width = maxWidth;
-
+                canvas.width = img.width * scale;
                 canvas.height = img.height * scale;
 
                 const ctx = canvas.getContext("2d");
-
                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-                const compressedImage =
+                const compressedImage = canvas.toDataURL("image/jpeg", 0.6);
 
-                    canvas.toDataURL("image/jpeg", 0.6);
-
-                // Save to Firestore
-
-                await addDoc(collection(db, "submissions"),{
-
+                await addDoc(collection(db, "submissions"), {
                     participant,
-
                     email,
-
                     prompt,
-
                     image: compressedImage,
-
                     submittedAt: new Date().toLocaleString()
-
                 });
 
                 alert("🎉 Design submitted successfully!");
 
-                // Reset form
-
                 document.getElementById("prompt").value = "";
+                document.getElementById("imageUpload").value = "";
+                document.getElementById("preview").style.display = "none";
 
-                imageInput.value = "";
-
-                preview.style.display = "none";
-
-            }
-
-            catch(error){
+            } catch (error) {
 
                 console.error(error);
-
                 alert("Submission failed: " + error.message);
 
             }
 
         };
 
-        img.src = event.target.result;
+        img.src = e.target.result;
 
     };
 
