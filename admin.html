@@ -40,108 +40,58 @@
 
 </div>
 
-<script>
+<script type="module">
+import { db } from "./firebase.js";
+import {
+  collection,
+  getDocs,
+  doc,
+  updateDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// ---------------- PARTICIPANT APPROVAL ----------------
+async function loadUsers() {
 
-let users = JSON.parse(localStorage.getItem("users")) || [];
+  const tbody = document.getElementById("table");
 
-function renderUsers(){
+  tbody.innerHTML = "";
 
-    const tbody = document.getElementById("table");
+  const snapshot = await getDocs(collection(db, "users"));
 
-    tbody.innerHTML = "";
+  snapshot.forEach((userDoc) => {
 
-    users.forEach((u, i) => {
+    const u = userDoc.data();
 
-        tbody.innerHTML += `
-            <tr>
-                <td>${u.name}</td>
-                <td>${u.college}</td>
-                <td>${u.department}</td>
-                <td>${u.email}</td>
-                <td>${u.status}</td>
-                <td>
-                    ${
-                        u.status === "approved"
-                        ? "Approved"
-                        : `<button onclick="approve(${i})">Approve</button>`
-                    }
-                </td>
-            </tr>
-        `;
+    tbody.innerHTML += `
+      <tr>
+        <td>${u.fullName}</td>
+        <td>${u.email}</td>
+        <td>${u.emailApproved ? "Approved" : "Pending"}</td>
+        <td>
+          ${
+            u.emailApproved
+            ? "Approved"
+            : `<button onclick="approveUser('${userDoc.id}')">Approve</button>`
+          }
+        </td>
+      </tr>
+    `;
 
-    });
-
-}
-
-function approve(index){
-
-    users[index].status = "approved";
-
-    localStorage.setItem(
-        "users",
-        JSON.stringify(users)
-    );
-
-    renderUsers();
-
-    alert("Participant approved successfully!");
+  });
 
 }
 
-renderUsers();
+window.approveUser = async function(id){
 
+  await updateDoc(
+    doc(db, "users", id),
+    { emailApproved: true }
+  );
 
-// ---------------- SUBMITTED DESIGNS ----------------
+  loadUsers();
 
-function loadSubmissions(){
+};
 
-    const submissions =
-    JSON.parse(localStorage.getItem("submissions")) || [];
-
-    const box =
-    document.getElementById("submissions");
-
-    box.innerHTML = "";
-
-    if(submissions.length === 0){
-
-        box.innerHTML =
-        "<p>No designs submitted yet.</p>";
-
-        return;
-
-    }
-
-    submissions.forEach(item => {
-
-        box.innerHTML += `
-            <div class="design-card" style="margin-top:20px; background:#334155; padding:20px; border-radius:12px;">
-
-                <h3>${item.participant}</h3>
-
-                <p><b>Prompt:</b> ${item.prompt}</p>
-
-                <p><b>Submitted:</b> ${item.submittedAt}</p>
-
-                <img src="${item.image}" style="width:300px; border-radius:10px;">
-
-                <br><br>
-
-                <a href="${item.image}" download>
-                    <button>Download</button>
-                </a>
-
-            </div>
-        `;
-
-    });
-
-}
-
-loadSubmissions();
-
+loadUsers();
 </script>
 
 </body>
