@@ -39,43 +39,121 @@
 </div>
 
 <script type="module">
+
 import { db } from "./firebase.js";
+
 import {
-  collection,
-  query,
-  where,
-  getDocs
+
+    collection,
+    query,
+    where,
+    getDocs
+
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+
+// ---------------- PARTICIPANT LOGIN ----------------
 
 window.login = async function(){
 
-  const email =
-  document.getElementById("email").value.trim().toLowerCase();
+    const email =
 
-  const q = query(
-    collection(db, "users"),
-    where("email", "==", email)
-  );
+    document.getElementById("email").value.trim().toLowerCase();
 
-  const snapshot = await getDocs(q);
+    if(!email){
 
-  if(snapshot.empty){
-    alert("Email not registered");
-    return;
-  }
+        alert("Enter your registered email");
 
-  const user = snapshot.docs[0].data();
+        return;
 
-  if(!user.emailApproved){
-    alert("Waiting for admin approval");
-    return;
-  }
+    }
 
-  localStorage.setItem("currentUser", user.fullName);
+    const q = query(
 
-  window.location.href = "battle.html";
+        collection(db, "users"),
+
+        where("email", "==", email)
+
+    );
+
+    const snapshot = await getDocs(q);
+
+    if(snapshot.empty){
+
+        alert("Email not registered");
+
+        return;
+
+    }
+
+    const user = snapshot.docs[0].data();
+
+    if(!user.emailApproved){
+
+        alert("Waiting for admin approval");
+
+        return;
+
+    }
+
+    // Save participant details
+
+    localStorage.setItem("currentUser", user.fullName);
+
+    localStorage.setItem("currentEmail", user.email);
+
+    window.location.href = "battle.html";
 
 };
+
+
+// ---------------- SHOW ADMIN LOGIN ----------------
+
+window.showAdminLogin = function(){
+
+    const box = document.getElementById("adminBox");
+
+    box.style.display =
+
+    box.style.display === "none" ? "block" : "none";
+
+};
+
+
+// ---------------- ADMIN LOGIN ----------------
+
+window.adminLogin = function(){
+
+    const username =
+
+    document.getElementById("adminUsername").value.trim();
+
+    const password =
+
+    document.getElementById("adminPassword").value;
+
+    // Admin credentials
+
+    const ADMIN_USERNAME = "admin";
+
+    const ADMIN_PASSWORD = "promptforge2026";
+
+    if(username === ADMIN_USERNAME && password === ADMIN_PASSWORD){
+
+        localStorage.setItem("admin", "true");
+
+        window.location.href = "admin.html";
+
+    }
+
+    else{
+
+        alert("Invalid admin username or password");
+
+    }
+
+};
+
 </script>
 
 </body>
