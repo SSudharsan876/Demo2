@@ -41,57 +41,152 @@
 </div>
 
 <script type="module">
+
 import { db } from "./firebase.js";
+
 import {
-  collection,
-  getDocs,
-  doc,
-  updateDoc
+
+    collection,
+    getDocs,
+    doc,
+    updateDoc
+
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-async function loadUsers() {
 
-  const tbody = document.getElementById("table");
+// ---------------- LOAD USERS ----------------
 
-  tbody.innerHTML = "";
+async function loadUsers(){
 
-  const snapshot = await getDocs(collection(db, "users"));
+    const tbody = document.getElementById("table");
 
-  snapshot.forEach((userDoc) => {
+    tbody.innerHTML = "";
 
-    const u = userDoc.data();
+    const snapshot = await getDocs(collection(db, "users"));
 
-    tbody.innerHTML += `
-      <tr>
-        <td>${u.fullName}</td>
-        <td>${u.email}</td>
-        <td>${u.emailApproved ? "Approved" : "Pending"}</td>
-        <td>
-          ${
-            u.emailApproved
-            ? "Approved"
-            : `<button onclick="approveUser('${userDoc.id}')">Approve</button>`
-          }
-        </td>
-      </tr>
-    `;
+    snapshot.forEach((userDoc)=>{
 
-  });
+        const u = userDoc.data();
+
+        tbody.innerHTML += `
+
+            <tr>
+
+                <td>${u.fullName || ""}</td>
+
+                <td>${u.college || ""}</td>
+
+                <td>${u.department || ""}</td>
+
+                <td>${u.email || ""}</td>
+
+                <td>${u.emailApproved ? "Approved" : "Pending"}</td>
+
+                <td>
+
+                    ${
+
+                        u.emailApproved
+
+                        ? "Approved"
+
+                        : `<button onclick="approveUser('${userDoc.id}')">Approve</button>`
+
+                    }
+
+                </td>
+
+            </tr>
+
+        `;
+
+    });
 
 }
 
+
+// ---------------- APPROVE USER ----------------
+
 window.approveUser = async function(id){
 
-  await updateDoc(
-    doc(db, "users", id),
-    { emailApproved: true }
-  );
+    await updateDoc(
 
-  loadUsers();
+        doc(db, "users", id),
+
+        {
+
+            emailApproved: true
+
+        }
+
+    );
+
+    alert("Participant approved successfully!");
+
+    loadUsers();
 
 };
 
+
+// ---------------- LOAD SUBMISSIONS ----------------
+
+async function loadSubmissions(){
+
+    const box = document.getElementById("submissions");
+
+    box.innerHTML = "";
+
+    const snapshot = await getDocs(collection(db, "submissions"));
+
+    if(snapshot.empty){
+
+        box.innerHTML = "<p>No designs submitted yet.</p>";
+
+        return;
+
+    }
+
+    snapshot.forEach((designDoc)=>{
+
+        const d = designDoc.data();
+
+        box.innerHTML += `
+
+            <div class="design-card" style="margin-top:20px; background:#334155; padding:20px; border-radius:12px;">
+
+                <h3>${d.participant || "Participant"}</h3>
+
+                <p><b>Email:</b> ${d.email || ""}</p>
+
+                <p><b>Prompt:</b> ${d.prompt || ""}</p>
+
+                <p><b>Submitted:</b> ${d.submittedAt || ""}</p>
+
+                <img src="${d.image}" style="width:300px; border-radius:10px;" alt="Submitted Design">
+
+                <br><br>
+
+                <a href="${d.image}" target="_blank">
+
+                    <button>View Design</button>
+
+                </a>
+
+            </div>
+
+        `;
+
+    });
+
+}
+
+
+// ---------------- INITIAL LOAD ----------------
+
 loadUsers();
+
+loadSubmissions();
+
 </script>
 
 </body>
