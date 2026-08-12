@@ -2,7 +2,7 @@
 
 <html>
 <head>
-    <title>AI Prompt Battle - Canva AI Generator</title>
+    <title>Prompt Forge - Canva AI Generator</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -10,7 +10,7 @@
 <div class="container">
 
 ```
-<h1>🎨 AI Prompt Battle</h1>
+<h1>⚡ Prompt Forge</h1>
 <h2>Canva AI Design Generator</h2>
 
 <p id="user"></p>
@@ -48,31 +48,56 @@ Example: Create a handwritten signature style SD logo with elegant gold foil eff
 
 </div>
 
-<script>
+<script type="module">
+
+import { db } from "./firebase.js";
+
+import {
+
+    collection,
+    addDoc
+
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+
+// Show current participant
 
 document.getElementById("user").innerText =
+
 "Participant: " + (localStorage.getItem("currentUser") || "Guest");
+
 
 let uploadedImage = "";
 
-function generateDesign(){
+
+// ---------------- Canva AI ----------------
+
+window.generateDesign = function(){
 
     const prompt = document.getElementById("prompt").value;
 
     if(!prompt.trim()){
+
         alert("Enter your design prompt");
+
         return;
+
     }
 
     const canvaLink =
+
     `https://www.canva.com/ai-image-generator/?prompt=${encodeURIComponent(prompt)}`;
 
     window.open(canvaLink, "_blank");
 
     document.getElementById("loading").innerText =
+
     "Canva AI opened in a new tab. Generate the design, download it, and upload it below.";
 
-}
+};
+
+
+// ---------------- Image Upload Preview ----------------
 
 document.getElementById("imageUpload").addEventListener("change", function(e){
 
@@ -89,6 +114,7 @@ document.getElementById("imageUpload").addEventListener("change", function(e){
         const img = document.getElementById("preview");
 
         img.src = uploadedImage;
+
         img.style.display = "block";
 
     };
@@ -97,38 +123,62 @@ document.getElementById("imageUpload").addEventListener("change", function(e){
 
 });
 
-function submitDesign() {
+
+// ---------------- Submit Design ----------------
+
+window.submitDesign = async function(){
 
     const participant = localStorage.getItem("currentUser") || "Guest";
+
+    const email = localStorage.getItem("currentEmail") || "";
+
     const prompt = document.getElementById("prompt").value;
 
-    const img = document.getElementById("preview");
+    if(uploadedImage === ""){
 
-    if (!img || !img.src) {
         alert("Please upload the generated image first.");
+
         return;
+
     }
 
-    const image = img.src;
+    try{
 
-    let submissions = JSON.parse(localStorage.getItem("submissions")) || [];
+        await addDoc(collection(db, "submissions"),{
 
-    submissions.push({
-        participant: participant,
-        prompt: prompt,
-        image: image,
-        submittedAt: new Date().toLocaleString()
-    });
+            participant,
 
-    localStorage.setItem("submissions", JSON.stringify(submissions));
+            email,
 
-    alert("🎉 Design submitted successfully!");
+            prompt,
 
-    // Optional: clear the form
-    document.getElementById("prompt").value = "";
-    document.getElementById("imageUpload").value = "";
-    document.getElementById("preview").style.display = "none";
-}
+            image: uploadedImage,
+
+            submittedAt: new Date().toLocaleString()
+
+        });
+
+        alert("🎉 Design submitted successfully!");
+
+        document.getElementById("prompt").value = "";
+
+        document.getElementById("imageUpload").value = "";
+
+        document.getElementById("preview").style.display = "none";
+
+        uploadedImage = "";
+
+    }
+
+    catch(error){
+
+        console.error(error);
+
+        alert("Submission failed");
+
+    }
+
+};
 
 </script>
 
