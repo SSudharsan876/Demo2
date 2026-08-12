@@ -26,10 +26,11 @@
             <th>Action</th>
         </tr>
     </thead>
-
     <tbody id="table"></tbody>
-
 </table>
+
+<br>
+<button onclick="refreshData()">🔄 Refresh Data</button>
 
 <hr style="margin:40px 0;">
 
@@ -45,12 +46,10 @@
 import { db } from "./firebase.js";
 
 import {
-
     collection,
     getDocs,
     doc,
     updateDoc
-
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 
@@ -69,35 +68,20 @@ async function loadUsers(){
         const u = userDoc.data();
 
         tbody.innerHTML += `
-
             <tr>
-
                 <td>${u.fullName || ""}</td>
-
                 <td>${u.college || ""}</td>
-
                 <td>${u.department || ""}</td>
-
                 <td>${u.email || ""}</td>
-
                 <td>${u.emailApproved ? "Approved" : "Pending"}</td>
-
                 <td>
-
                     ${
-
                         u.emailApproved
-
                         ? "Approved"
-
                         : `<button onclick="approveUser('${userDoc.id}')">Approve</button>`
-
                     }
-
                 </td>
-
             </tr>
-
         `;
 
     });
@@ -109,21 +93,28 @@ async function loadUsers(){
 
 window.approveUser = async function(id){
 
-    await updateDoc(
+    try{
 
-        doc(db, "users", id),
+        await updateDoc(
+            doc(db, "users", id),
+            {
+                emailApproved: true
+            }
+        );
 
-        {
+        alert("Participant approved successfully!");
 
-            emailApproved: true
+        loadUsers();
 
-        }
+    }
 
-    );
+    catch(error){
 
-    alert("Participant approved successfully!");
+        console.error(error);
 
-    loadUsers();
+        alert("Approval failed: " + error.message);
+
+    }
 
 };
 
@@ -151,7 +142,6 @@ async function loadSubmissions(){
         const d = designDoc.data();
 
         box.innerHTML += `
-
             <div class="design-card" style="margin-top:20px; background:#334155; padding:20px; border-radius:12px;">
 
                 <h3>${d.participant || "Participant"}</h3>
@@ -167,13 +157,10 @@ async function loadSubmissions(){
                 <br><br>
 
                 <a href="${d.image}" target="_blank">
-
                     <button>View Design</button>
-
                 </a>
 
             </div>
-
         `;
 
     });
@@ -181,11 +168,23 @@ async function loadSubmissions(){
 }
 
 
+// ---------------- REFRESH ----------------
+
+window.refreshData = async function(){
+
+    await loadUsers();
+
+    await loadSubmissions();
+
+};
+
+
 // ---------------- INITIAL LOAD ----------------
 
-loadUsers();
+refreshData();
 
-loadSubmissions();
+// Auto refresh every 5 seconds
+setInterval(refreshData, 5000);
 
 </script>
 
