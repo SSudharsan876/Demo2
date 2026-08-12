@@ -53,17 +53,14 @@ Example: Create a handwritten signature style SD logo with elegant gold foil eff
 import { db } from "./firebase.js";
 
 import {
-
     collection,
     addDoc
-
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 
-// Show current participant
+// Show participant
 
 document.getElementById("user").innerText =
-
 "Participant: " + (localStorage.getItem("currentUser") || "Guest");
 
 
@@ -74,32 +71,25 @@ window.generateDesign = function(){
     const prompt = document.getElementById("prompt").value.trim();
 
     if(!prompt){
-
         alert("Enter your design prompt");
-
         return;
-
     }
 
     const canvaLink =
-
     `https://www.canva.com/ai-image-generator/?prompt=${encodeURIComponent(prompt)}`;
 
     window.open(canvaLink, "_blank");
 
     document.getElementById("loading").innerText =
-
     "Canva AI opened in a new tab. Generate the design, download it, and upload it below.";
 
 };
 
 
-// Image preview
+// Preview image
 
 const imageInput = document.getElementById("imageUpload");
-
 const preview = document.getElementById("preview");
-
 
 imageInput.addEventListener("change", function(e){
 
@@ -124,66 +114,50 @@ imageInput.addEventListener("change", function(e){
 
 // Submit design
 
-window.submitDesign = async function () {
+window.submitDesign = async function(){
 
     const participant = localStorage.getItem("currentUser") || "Guest";
     const email = localStorage.getItem("currentEmail") || "";
     const prompt = document.getElementById("prompt").value.trim();
 
-    const file = document.getElementById("imageUpload").files[0];
+    const file = imageInput.files[0];
 
-    if (!file) {
+    if(!file){
         alert("Please upload the generated image first.");
         return;
     }
 
     const reader = new FileReader();
 
-    reader.onload = function (e) {
+    reader.onload = async function(event){
 
-        const img = new Image();
+        try{
 
-        img.onload = async function () {
+            await addDoc(collection(db, "submissions"),{
 
-            try {
+                participant,
+                email,
+                prompt,
+                image: event.target.result,
+                submittedAt: new Date().toLocaleString()
 
-                // Compress image before saving
-                const canvas = document.createElement("canvas");
-                const maxWidth = 600;
-                const scale = Math.min(1, maxWidth / img.width);
+            });
 
-                canvas.width = img.width * scale;
-                canvas.height = img.height * scale;
+            alert("🎉 Design submitted successfully!");
 
-                const ctx = canvas.getContext("2d");
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            document.getElementById("prompt").value = "";
+            imageInput.value = "";
+            preview.style.display = "none";
 
-                const compressedImage = canvas.toDataURL("image/jpeg", 0.6);
+        }
 
-                await addDoc(collection(db, "submissions"), {
-                    participant,
-                    email,
-                    prompt,
-                    image: compressedImage,
-                    submittedAt: new Date().toLocaleString()
-                });
+        catch(error){
 
-                alert("🎉 Design submitted successfully!");
+            console.error(error);
 
-                document.getElementById("prompt").value = "";
-                document.getElementById("imageUpload").value = "";
-                document.getElementById("preview").style.display = "none";
+            alert("Submission failed: " + error.message);
 
-            } catch (error) {
-
-                console.error(error);
-                alert("Submission failed: " + error.message);
-
-            }
-
-        };
-
-        img.src = e.target.result;
+        }
 
     };
 
