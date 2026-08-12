@@ -30,49 +30,49 @@
 
 </div>
 
-<script>
+<script type="module">
+import { db } from "./firebase.js";
+import {
+  collection,
+  addDoc,
+  query,
+  where,
+  getDocs
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-function registerUser(){
+window.registerUser = async function () {
 
-    const name = document.getElementById("name").value.trim();
-    const college = document.getElementById("college").value.trim();
-    const department = document.getElementById("department").value.trim();
-    const email = document.getElementById("email").value.trim().toLowerCase();
-    const phone = document.getElementById("phone").value.trim();
+  const fullName = document.getElementById("name").value.trim();
+  const college = document.getElementById("college").value.trim();
+  const department = document.getElementById("department").value.trim();
+  const email = document.getElementById("email").value.trim().toLowerCase();
+  const phone = document.getElementById("phone").value.trim();
 
-    if(!name || !college || !department || !email || !phone){
-        alert("Please fill all fields");
-        return;
-    }
+  const q = query(
+    collection(db, "users"),
+    where("email", "==", email)
+  );
 
-    let users = JSON.parse(localStorage.getItem("users")) || [];
+  const existing = await getDocs(q);
 
-    if(users.find(u => u.email === email)){
-        alert("Email already registered");
-        return;
-    }
+  if (!existing.empty) {
+    alert("Email already registered");
+    return;
+  }
 
-    users.push({
-        name,
-        college,
-        department,
-        email,
-        phone,
-        status:"pending"
-    });
+  await addDoc(collection(db, "users"), {
+    fullName,
+    college,
+    department,
+    email,
+    phone,
+    emailApproved: false
+  });
 
-    localStorage.setItem(
-        "users",
-        JSON.stringify(users)
-    );
+  alert("Registration successful. Wait for admin approval.");
 
-    alert("Registration successful. Wait for admin approval.");
-
-    window.location.href = "login.html";
-
-}
-
+  window.location.href = "login.html";
+};
 </script>
-
 </body>
 </html>
