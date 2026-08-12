@@ -31,48 +31,111 @@
 </div>
 
 <script type="module">
+
 import { db } from "./firebase.js";
+
 import {
-  collection,
-  addDoc,
-  query,
-  where,
-  getDocs
+
+    collection,
+    addDoc,
+    query,
+    where,
+    getDocs
+
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-window.registerUser = async function () {
 
-  const fullName = document.getElementById("name").value.trim();
-  const college = document.getElementById("college").value.trim();
-  const department = document.getElementById("department").value.trim();
-  const email = document.getElementById("email").value.trim().toLowerCase();
-  const phone = document.getElementById("phone").value.trim();
+window.registerUser = async function(){
 
-  const q = query(
-    collection(db, "users"),
-    where("email", "==", email)
-  );
+    const fullName =
 
-  const existing = await getDocs(q);
+    document.getElementById("name").value.trim();
 
-  if (!existing.empty) {
-    alert("Email already registered");
-    return;
-  }
+    const college =
 
-  await addDoc(collection(db, "users"), {
-    fullName,
-    college,
-    department,
-    email,
-    phone,
-    emailApproved: false
-  });
+    document.getElementById("college").value.trim();
 
-  alert("Registration successful. Wait for admin approval.");
+    const department =
 
-  window.location.href = "login.html";
+    document.getElementById("department").value.trim();
+
+    const email =
+
+    document.getElementById("email").value.trim().toLowerCase();
+
+    const phone =
+
+    document.getElementById("phone").value.trim();
+
+    // Validate all fields
+
+    if(!fullName || !college || !department || !email || !phone){
+
+        alert("Please fill all fields");
+
+        return;
+
+    }
+
+    try{
+
+        // Check if email already exists
+
+        const q = query(
+
+            collection(db, "users"),
+
+            where("email", "==", email)
+
+        );
+
+        const existing = await getDocs(q);
+
+        if(!existing.empty){
+
+            alert("Email already registered");
+
+            return;
+
+        }
+
+        // Save participant to Firestore
+
+        await addDoc(collection(db, "users"),{
+
+            fullName,
+
+            college,
+
+            department,
+
+            email,
+
+            phone,
+
+            emailApproved: false,
+
+            createdAt: new Date().toLocaleString()
+
+        });
+
+        alert("Registration successful. Wait for admin approval.");
+
+        window.location.href = "login.html";
+
+    }
+
+    catch(error){
+
+        console.error(error);
+
+        alert("Registration failed. Please try again.");
+
+    }
+
 };
+
 </script>
+
 </body>
 </html>
