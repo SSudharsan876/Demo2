@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>Prompt Forge - Login</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+
+```
+<h1>⚡ Prompt Forge</h1>
+<h2>Participant Login</h2>
+
+<input type="email" id="email" placeholder="Registered Email Address">
+
+<button onclick="login()">Enter Competition</button>
+
+<p>Not registered? <a href="register.html">Register Here</a></p>
+
+<hr style="margin:30px 0;">
+
+<p><a href="#" onclick="showAdminLogin()">🔐 Admin Login</a></p>
+
+<div id="adminBox" style="display:none; margin-top:20px;">
+
+    <h3>Admin Login</h3>
+
+    <input type="text" id="adminUsername" placeholder="Admin Username">
+
+    <input type="password" id="adminPassword" placeholder="Admin Password">
+
+    <button onclick="adminLogin()">Login as Admin</button>
+
+</div>
+```
+
+</div>
+
+<script>
+
+function login(){
+
+    const email =
+    document.getElementById("email").value.trim().toLowerCase();
+
+    let users =
+    JSON.parse(localStorage.getItem("users")) || [];
+
+    const user =
+    users.find(u => u.email === email);
+
+    if(!user){
+        alert("Email not registered");
+        return;
+    }
+
+    if(user.status !== "approved"){
+        alert("Waiting for admin approval");
+        return;
+    }
+
+    localStorage.setItem(
+        "currentUser",
+        user.name
+    );
+
+    window.location.href = "battle.html";
+
+}
+
+function showAdminLogin(){
+
+    const box =
+    document.getElementById("adminBox");
+
+    box.style.display =
+    box.style.display === "none" ? "block" : "none";
+
+}
+
+function adminLogin(){
+
+    const username =
+    document.getElementById("adminUsername").value.trim();
+
+    const password =
+    document.getElementById("adminPassword").value;
+
+    // Change these credentials if needed
+    const ADMIN_USERNAME = "admin";
+    const ADMIN_PASSWORD = "promptforge2026";
+
+    if(username === ADMIN_USERNAME && password === ADMIN_PASSWORD){
+
+        localStorage.setItem("admin", "true");
+
+        window.location.href = "admin.html";
+
+    }
+
+    else{
+
+        alert("Invalid admin username or password");
+
+    }
+
+}
+
+</script>
+
+</body>
+</html>

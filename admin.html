@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>Prompt Forge - Admin Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+
+```
+<h1>⚡ Prompt Forge</h1>
+<h2>Admin Dashboard</h2>
+
+<h3>Participant Approval</h3>
+
+<table border="1" width="100%">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>College</th>
+            <th>Department</th>
+            <th>Email</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+
+    <tbody id="table"></tbody>
+
+</table>
+
+<hr style="margin:40px 0;">
+
+<h3>Submitted Designs</h3>
+
+<div id="submissions"></div>
+```
+
+</div>
+
+<script>
+
+// ---------------- PARTICIPANT APPROVAL ----------------
+
+let users = JSON.parse(localStorage.getItem("users")) || [];
+
+function renderUsers(){
+
+    const tbody = document.getElementById("table");
+
+    tbody.innerHTML = "";
+
+    users.forEach((u, i) => {
+
+        tbody.innerHTML += `
+            <tr>
+                <td>${u.name}</td>
+                <td>${u.college}</td>
+                <td>${u.department}</td>
+                <td>${u.email}</td>
+                <td>${u.status}</td>
+                <td>
+                    ${
+                        u.status === "approved"
+                        ? "Approved"
+                        : `<button onclick="approve(${i})">Approve</button>`
+                    }
+                </td>
+            </tr>
+        `;
+
+    });
+
+}
+
+function approve(index){
+
+    users[index].status = "approved";
+
+    localStorage.setItem(
+        "users",
+        JSON.stringify(users)
+    );
+
+    renderUsers();
+
+    alert("Participant approved successfully!");
+
+}
+
+renderUsers();
+
+
+// ---------------- SUBMITTED DESIGNS ----------------
+
+function loadSubmissions(){
+
+    const submissions =
+    JSON.parse(localStorage.getItem("submissions")) || [];
+
+    const box =
+    document.getElementById("submissions");
+
+    box.innerHTML = "";
+
+    if(submissions.length === 0){
+
+        box.innerHTML =
+        "<p>No designs submitted yet.</p>";
+
+        return;
+
+    }
+
+    submissions.forEach(item => {
+
+        box.innerHTML += `
+            <div class="design-card" style="margin-top:20px; background:#334155; padding:20px; border-radius:12px;">
+
+                <h3>${item.participant}</h3>
+
+                <p><b>Prompt:</b> ${item.prompt}</p>
+
+                <p><b>Submitted:</b> ${item.submittedAt}</p>
+
+                <img src="${item.image}" style="width:300px; border-radius:10px;">
+
+                <br><br>
+
+                <a href="${item.image}" download>
+                    <button>Download</button>
+                </a>
+
+            </div>
+        `;
+
+    });
+
+}
+
+loadSubmissions();
+
+</script>
+
+</body>
+</html>

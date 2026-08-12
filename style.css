@@ -1,0 +1,57 @@
+/* =========================
+   Prompt Forge 2026
+   Premium Dark Glass Theme
+   ========================= */
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap");
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:"Inter",sans-serif;
+    background:
+        radial-gradient(circle at top left,#2563eb22 0%,transparent 30%),
+        radial-gradient(circle at top right,#7c3aed22 0%,transparent 30%),
+        linear-gradient(135deg,#020617 0%,#0f172a 45%,#111827 100%);
+    color:#f8fafc;
+    min-height:100vh;
+}
+
+.container{
+    width:92%;
+    max-width:980px;
+    margin:40px auto;
+    background:rgba(15,23,42,.82);
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:28px;
+    padding:36px;
+    backdrop-filter:blur(18px);
+    box-shadow:
+        0 25px 60px rgba(0,0,0,.45),
+        inset 0 1px 0 rgba(255,255,255,.05);
+}
+
+h1{
+    font-size:44px;
+    font-weight:800;
+    margin-bottom:8px;
+    letter-spacing:-1px;
+    background:linear-gradient(90deg,#ffffff,#93c5fd,#c4b5fd);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+}
+
+h2{
+    font-size:28px;
+    font-weight:700;
+    margin:28px 0 18px;
+}
+
+p{
+    color:#cbd5e1;
+    line-height:1.7;
+}

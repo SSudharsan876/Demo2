@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>AI Prompt Battle - Canva AI Generator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+
+```
+<h1>🎨 AI Prompt Battle</h1>
+<h2>Canva AI Design Generator</h2>
+
+<p id="user"></p>
+
+<div class="generator-box">
+
+    <textarea id="prompt" placeholder="Describe your logo or design idea...
+```
+
+Example: Create a handwritten signature style SD logo with elegant gold foil effect on a black background"></textarea>
+
+```
+    <button onclick="generateDesign()">🎨 Generate Design in Canva AI</button>
+
+</div>
+
+<h3 id="loading"></h3>
+
+<div id="result">
+
+    <h3>Upload your Canva AI generated image</h3>
+
+    <input type="file" id="imageUpload" accept="image/*">
+
+    <br><br>
+
+    <img id="preview" style="max-width:100%; display:none; border-radius:15px;">
+
+    <br><br>
+
+    <button onclick="submitDesign()">✅ Submit Design</button>
+
+</div>
+```
+
+</div>
+
+<script>
+
+document.getElementById("user").innerText =
+"Participant: " + (localStorage.getItem("currentUser") || "Guest");
+
+let uploadedImage = "";
+
+function generateDesign(){
+
+    const prompt = document.getElementById("prompt").value;
+
+    if(!prompt.trim()){
+        alert("Enter your design prompt");
+        return;
+    }
+
+    const canvaLink =
+    `https://www.canva.com/ai-image-generator/?prompt=${encodeURIComponent(prompt)}`;
+
+    window.open(canvaLink, "_blank");
+
+    document.getElementById("loading").innerText =
+    "Canva AI opened in a new tab. Generate the design, download it, and upload it below.";
+
+}
+
+document.getElementById("imageUpload").addEventListener("change", function(e){
+
+    const file = e.target.files[0];
+
+    if(!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = function(event){
+
+        uploadedImage = event.target.result;
+
+        const img = document.getElementById("preview");
+
+        img.src = uploadedImage;
+        img.style.display = "block";
+
+    };
+
+    reader.readAsDataURL(file);
+
+});
+
+function submitDesign() {
+
+    const participant = localStorage.getItem("currentUser") || "Guest";
+    const prompt = document.getElementById("prompt").value;
+
+    const img = document.getElementById("preview");
+
+    if (!img || !img.src) {
+        alert("Please upload the generated image first.");
+        return;
+    }
+
+    const image = img.src;
+
+    let submissions = JSON.parse(localStorage.getItem("submissions")) || [];
+
+    submissions.push({
+        participant: participant,
+        prompt: prompt,
+        image: image,
+        submittedAt: new Date().toLocaleString()
+    });
+
+    localStorage.setItem("submissions", JSON.stringify(submissions));
+
+    alert("🎉 Design submitted successfully!");
+
+    // Optional: clear the form
+    document.getElementById("prompt").value = "";
+    document.getElementById("imageUpload").value = "";
+    document.getElementById("preview").style.display = "none";
+}
+
+</script>
+
+</body>
+</html>
