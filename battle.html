@@ -1,209 +1,76 @@
-<!DOCTYPE html>
-
-<html>
-<head>
-    <title>Prompt Forge - Canva AI Generator</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-
-<div class="container">
-
-```
-<h1>⚡ Prompt Forge</h1>
-<h2>Canva AI Design Generator</h2>
-
-<p id="user"></p>
-
-<div class="generator-box">
-
-    <textarea id="prompt" placeholder="Describe your logo or design idea...
-```
-
-Example: Create a handwritten signature style SD logo with elegant gold foil effect on a black background"></textarea>
-
-```
-    <button onclick="generateDesign()">🎨 Generate Design in Canva AI</button>
-
-</div>
-
-<h3 id="loading"></h3>
-
-<div id="result">
-
-    <h3>Upload your Canva AI generated image</h3>
-
-    <input type="file" id="imageUpload" accept="image/*">
-
-    <br><br>
-
-    <img id="preview" style="max-width:100%; display:none; border-radius:15px;">
-
-    <br><br>
-
-    <button onclick="submitDesign()">✅ Submit Design</button>
-
-</div>
-```
-
-</div>
-
 <script type="module">
-
 import { db, storage } from "./firebase.js";
+import { collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
-import {
-
-    collection,
-    addDoc
-
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-import {
-
-    ref,
-    uploadBytes,
-    getDownloadURL
-
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
-
-
-// Show current participant
-
+// Show participant
 document.getElementById("user").innerText =
+  "Participant: " + (localStorage.getItem("currentUser") || "Guest");
 
-"Participant: " + (localStorage.getItem("currentUser") || "Guest");
+// Generate Canva AI
+window.generateDesign = function () {
+  const prompt = document.getElementById("prompt").value.trim();
 
+  if (!prompt) {
+    alert("Enter your design prompt");
+    return;
+  }
 
-// Canva AI
-
-window.generateDesign = function(){
-
-    const prompt = document.getElementById("prompt").value.trim();
-
-    if(!prompt){
-
-        alert("Enter your design prompt");
-
-        return;
-
-    }
-
-    const canvaLink =
-
+  const canvaLink =
     `https://www.canva.com/ai-image-generator/?prompt=${encodeURIComponent(prompt)}`;
 
-    window.open(canvaLink, "_blank");
+  window.open(canvaLink, "_blank");
 
-    document.getElementById("loading").innerText =
-
+  document.getElementById("loading").innerText =
     "Canva AI opened in a new tab. Generate the design, download it, and upload it below.";
-
 };
 
+// Preview image
+const imageInput = document.getElementById("imageUpload");
+const preview = document.getElementById("preview");
 
-// Preview uploaded image
+imageInput.addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
 
-document.getElementById("imageUpload").addEventListener("change", function(e){
-
-    const file = e.target.files[0];
-
-    if(!file) return;
-
-    const reader = new FileReader();
-
-    reader.onload = function(event){
-
-        const img = document.getElementById("preview");
-
-        img.src = event.target.result;
-
-        img.style.display = "block";
-
-    };
-
-    reader.readAsDataURL(file);
-
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    preview.src = event.target.result;
+    preview.style.display = "block";
+  };
+  reader.readAsDataURL(file);
 });
 
-
 // Submit design
+window.submitDesign = async function () {
+  alert("Button clicked"); // test
 
-window.submitDesign = async function(){
+  const file = imageInput.files[0];
+  if (!file) {
+    alert("Please upload an image first");
+    return;
+  }
 
-    const participant = localStorage.getItem("currentUser") || "Guest";
+  try {
+    const imageRef = ref(storage, `submissions/${Date.now()}_${file.name}`);
 
-    const email = localStorage.getItem("currentEmail") || "";
+    await uploadBytes(imageRef, file);
 
-    const prompt = document.getElementById("prompt").value.trim();
+    const imageUrl = await getDownloadURL(imageRef);
 
-    const fileInput = document.getElementById("imageUpload");
+    await addDoc(collection(db, "submissions"), {
+      participant: localStorage.getItem("currentUser") || "Guest",
+      email: localStorage.getItem("currentEmail") || "",
+      prompt: document.getElementById("prompt").value.trim(),
+      image: imageUrl,
+      submittedAt: new Date().toLocaleString()
+    });
 
-    const file = fileInput.files[0];
+    alert("🎉 Design submitted successfully!");
 
-    if(!file){
-
-        alert("Please upload the generated image first.");
-
-        return;
-
-    }
-
-    try{
-
-        // Upload image to Firebase Storage
-
-        const imageRef = ref(
-
-            storage,
-
-            `submissions/${Date.now()}_${file.name}`
-
-        );
-
-        await uploadBytes(imageRef, file);
-
-        // Get image URL
-
-        const imageUrl = await getDownloadURL(imageRef);
-
-        // Save submission to Firestore
-
-        await addDoc(collection(db, "submissions"),{
-
-            participant,
-
-            email,
-
-            prompt,
-
-            image: imageUrl,
-
-            submittedAt: new Date().toLocaleString()
-
-        });
-
-        alert("🎉 Design submitted successfully!");
-
-        document.getElementById("prompt").value = "";
-
-        fileInput.value = "";
-
-        document.getElementById("preview").style.display = "none";
-
-    }
-
-    catch(error){
-
-        console.error(error);
-
-        alert("Submission failed: " + error.message);
-
-    }
-
+  } catch (error) {
+    console.error(error);
+    alert("Submission failed: " + error.message);
+  }
 };
-
 </script>
-
-</body>
-</html>
