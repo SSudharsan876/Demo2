@@ -129,52 +129,74 @@ document.getElementById("imageUpload").addEventListener("change", function(e){
 
 // Submit design
 
-window.submitDesign = async function () {
+window.submitDesign = async function(){
 
     const participant = localStorage.getItem("currentUser") || "Guest";
+
     const email = localStorage.getItem("currentEmail") || "";
+
     const prompt = document.getElementById("prompt").value.trim();
 
     const fileInput = document.getElementById("imageUpload");
+
     const file = fileInput.files[0];
 
-    if (!file) {
+    if(!file){
+
         alert("Please upload the generated image first.");
+
         return;
+
     }
 
-    try {
+    try{
 
         // Upload image to Firebase Storage
+
         const imageRef = ref(
+
             storage,
-            "submissions/" + Date.now() + "_" + file.name
+
+            `submissions/${Date.now()}_${file.name}`
+
         );
 
         await uploadBytes(imageRef, file);
 
-        // Get public image URL
+        // Get image URL
+
         const imageUrl = await getDownloadURL(imageRef);
 
-        // Save submission in Firestore
-        await addDoc(collection(db, "submissions"), {
-            participant: participant,
-            email: email,
-            prompt: prompt,
+        // Save submission to Firestore
+
+        await addDoc(collection(db, "submissions"),{
+
+            participant,
+
+            email,
+
+            prompt,
+
             image: imageUrl,
+
             submittedAt: new Date().toLocaleString()
+
         });
 
         alert("🎉 Design submitted successfully!");
 
-        // Reset form
         document.getElementById("prompt").value = "";
+
         fileInput.value = "";
+
         document.getElementById("preview").style.display = "none";
 
-    } catch (error) {
+    }
+
+    catch(error){
 
         console.error(error);
+
         alert("Submission failed: " + error.message);
 
     }
