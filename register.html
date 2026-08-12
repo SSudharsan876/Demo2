@@ -31,110 +31,63 @@
 </div>
 
 <script type="module">
-
 import { db } from "./firebase.js";
-
 import {
-
-    collection,
-    addDoc,
-    query,
-    where,
-    getDocs
-
+  collection,
+  addDoc,
+  query,
+  where,
+  getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+window.registerUser = async function () {
 
-window.registerUser = async function(){
+  const fullName = document.getElementById("name").value.trim();
+  const college = document.getElementById("college").value.trim();
+  const department = document.getElementById("department").value.trim();
+  const email = document.getElementById("email").value.trim().toLowerCase();
+  const phone = document.getElementById("phone").value.trim();
 
-    const fullName =
+  if (!fullName || !college || !department || !email || !phone) {
+    alert("Please fill all fields");
+    return;
+  }
 
-    document.getElementById("name").value.trim();
+  try {
 
-    const college =
+    const q = query(
+      collection(db, "users"),
+      where("email", "==", email)
+    );
 
-    document.getElementById("college").value.trim();
+    const existing = await getDocs(q);
 
-    const department =
-
-    document.getElementById("department").value.trim();
-
-    const email =
-
-    document.getElementById("email").value.trim().toLowerCase();
-
-    const phone =
-
-    document.getElementById("phone").value.trim();
-
-    // Validate all fields
-
-    if(!fullName || !college || !department || !email || !phone){
-
-        alert("Please fill all fields");
-
-        return;
-
+    if (!existing.empty) {
+      alert("Email already registered");
+      return;
     }
 
-    try{
+    await addDoc(collection(db, "users"), {
+      fullName,
+      college,
+      department,
+      email,
+      phone,
+      emailApproved: false,
+      createdAt: new Date().toLocaleString()
+    });
 
-        // Check if email already exists
+    alert("Registration successful. Wait for admin approval.");
+    window.location.href = "login.html";
 
-        const q = query(
+  } catch (error) {
 
-            collection(db, "users"),
+    console.error(error);
+    alert("Registration failed: " + error.message);
 
-            where("email", "==", email)
-
-        );
-
-        const existing = await getDocs(q);
-
-        if(!existing.empty){
-
-            alert("Email already registered");
-
-            return;
-
-        }
-
-        // Save participant to Firestore
-
-        await addDoc(collection(db, "users"),{
-
-            fullName,
-
-            college,
-
-            department,
-
-            email,
-
-            phone,
-
-            emailApproved: false,
-
-            createdAt: new Date().toLocaleString()
-
-        });
-
-        alert("Registration successful. Wait for admin approval.");
-
-        window.location.href = "login.html";
-
-    }
-
-    catch(error){
-
-        console.error(error);
-
-        alert("Registration failed. Please try again.");
-
-    }
+  }
 
 };
-
 </script>
 
 </body>
