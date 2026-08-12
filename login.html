@@ -38,76 +38,44 @@
 
 </div>
 
-<script>
+<script type="module">
+import { db } from "./firebase.js";
+import {
+  collection,
+  query,
+  where,
+  getDocs
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-function login(){
+window.login = async function(){
 
-    const email =
-    document.getElementById("email").value.trim().toLowerCase();
+  const email =
+  document.getElementById("email").value.trim().toLowerCase();
 
-    let users =
-    JSON.parse(localStorage.getItem("users")) || [];
+  const q = query(
+    collection(db, "users"),
+    where("email", "==", email)
+  );
 
-    const user =
-    users.find(u => u.email === email);
+  const snapshot = await getDocs(q);
 
-    if(!user){
-        alert("Email not registered");
-        return;
-    }
+  if(snapshot.empty){
+    alert("Email not registered");
+    return;
+  }
 
-    if(user.status !== "approved"){
-        alert("Waiting for admin approval");
-        return;
-    }
+  const user = snapshot.docs[0].data();
 
-    localStorage.setItem(
-        "currentUser",
-        user.name
-    );
+  if(!user.emailApproved){
+    alert("Waiting for admin approval");
+    return;
+  }
 
-    window.location.href = "battle.html";
+  localStorage.setItem("currentUser", user.fullName);
 
-}
+  window.location.href = "battle.html";
 
-function showAdminLogin(){
-
-    const box =
-    document.getElementById("adminBox");
-
-    box.style.display =
-    box.style.display === "none" ? "block" : "none";
-
-}
-
-function adminLogin(){
-
-    const username =
-    document.getElementById("adminUsername").value.trim();
-
-    const password =
-    document.getElementById("adminPassword").value;
-
-    // Change these credentials if needed
-    const ADMIN_USERNAME = "admin";
-    const ADMIN_PASSWORD = "promptforge2026";
-
-    if(username === ADMIN_USERNAME && password === ADMIN_PASSWORD){
-
-        localStorage.setItem("admin", "true");
-
-        window.location.href = "admin.html";
-
-    }
-
-    else{
-
-        alert("Invalid admin username or password");
-
-    }
-
-}
-
+};
 </script>
 
 </body>
