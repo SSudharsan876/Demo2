@@ -8,8 +8,7 @@ const firebaseConfig = {
   projectId: "prompt-forge-5da75",
   storageBucket: "prompt-forge-5da75.firebasestorage.app",
   messagingSenderId: "1037395691833",
-  appId: "1:1037395691833:web:4f1d3e110fec1df9e280e8",
-  measurementId: "G-GRTTJVWMJ3"
+  appId: "1:1037395691833:web:4f1d3e110fec1df9e280e8"
 };
 
 const app = initializeApp(firebaseConfig);
