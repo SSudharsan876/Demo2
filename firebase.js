@@ -1,7 +1,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const firebaseConfig = {  apiKey: "AIzaSyBbMJrfjqjk_9mRtoMi1lEQoTbRkeQyYlE",
+const firebaseConfig = {
+  apiKey: "AIzaSyBbMJrfjqjk_9mRtoMi1lEQoTbRkeQyYlE",
   authDomain: "prompt-forge-5da75.firebaseapp.com",
   projectId: "prompt-forge-5da75",
   storageBucket: "prompt-forge-5da75.firebasestorage.app",
@@ -11,5 +12,4 @@ const firebaseConfig = {  apiKey: "AIzaSyBbMJrfjqjk_9mRtoMi1lEQoTbRkeQyYlE",
 };
 
 const app = initializeApp(firebaseConfig);
-
 export const db = getFirestore(app);
