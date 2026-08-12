@@ -50,7 +50,7 @@ Example: Create a handwritten signature style SD logo with elegant gold foil eff
 
 <script type="module">
 
-import { db } from "./firebase.js";
+import { db, storage } from "./firebase.js";
 
 import {
 
@@ -58,6 +58,14 @@ import {
     addDoc
 
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+import {
+
+    ref,
+    uploadBytes,
+    getDownloadURL
+
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
 
 // Show current participant
@@ -67,16 +75,13 @@ document.getElementById("user").innerText =
 "Participant: " + (localStorage.getItem("currentUser") || "Guest");
 
 
-let uploadedImage = "";
-
-
-// ---------------- Canva AI ----------------
+// Canva AI
 
 window.generateDesign = function(){
 
-    const prompt = document.getElementById("prompt").value;
+    const prompt = document.getElementById("prompt").value.trim();
 
-    if(!prompt.trim()){
+    if(!prompt){
 
         alert("Enter your design prompt");
 
@@ -97,7 +102,7 @@ window.generateDesign = function(){
 };
 
 
-// ---------------- Image Upload Preview ----------------
+// Preview uploaded image
 
 document.getElementById("imageUpload").addEventListener("change", function(e){
 
@@ -109,11 +114,9 @@ document.getElementById("imageUpload").addEventListener("change", function(e){
 
     reader.onload = function(event){
 
-        uploadedImage = event.target.result;
-
         const img = document.getElementById("preview");
 
-        img.src = uploadedImage;
+        img.src = event.target.result;
 
         img.style.display = "block";
 
@@ -124,7 +127,7 @@ document.getElementById("imageUpload").addEventListener("change", function(e){
 });
 
 
-// ---------------- Submit Design ----------------
+// Submit design
 
 window.submitDesign = async function(){
 
@@ -132,9 +135,11 @@ window.submitDesign = async function(){
 
     const email = localStorage.getItem("currentEmail") || "";
 
-    const prompt = document.getElementById("prompt").value;
+    const prompt = document.getElementById("prompt").value.trim();
 
-    if(uploadedImage === ""){
+    const file = document.getElementById("imageUpload").files[0];
+
+    if(!file){
 
         alert("Please upload the generated image first.");
 
@@ -144,6 +149,18 @@ window.submitDesign = async function(){
 
     try{
 
+        const imageRef = ref(
+
+            storage,
+
+            "submissions/" + Date.now() + "_" + file.name
+
+        );
+
+        await uploadBytes(imageRef, file);
+
+        const imageUrl = await getDownloadURL(imageRef);
+
         await addDoc(collection(db, "submissions"),{
 
             participant,
@@ -152,7 +169,7 @@ window.submitDesign = async function(){
 
             prompt,
 
-            image: uploadedImage,
+            image: imageUrl,
 
             submittedAt: new Date().toLocaleString()
 
@@ -166,15 +183,13 @@ window.submitDesign = async function(){
 
         document.getElementById("preview").style.display = "none";
 
-        uploadedImage = "";
-
     }
 
     catch(error){
 
         console.error(error);
 
-        alert("Submission failed");
+        alert("Submission failed: " + error.message);
 
     }
 
