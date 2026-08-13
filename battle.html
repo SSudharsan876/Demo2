@@ -116,89 +116,57 @@ imageInput.addEventListener("change", (e) => {
 
 // Submit design with strong compression
 
-document.getElementById("submitBtn").addEventListener("click", () => {
+document.getElementById("submitBtn").addEventListener("click", async () => {
 
     const file = imageInput.files[0];
 
-    if(!file){
+    if (!file) {
         alert("Please upload the generated image first.");
         return;
     }
 
-    const reader = new FileReader();
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "ml_default");
 
-    reader.onload = (event) => {
+    try {
 
-        const img = new Image();
-
-        img.onload = async () => {
-
-            try{
-
-                const canvas = document.createElement("canvas");
-
-                const maxWidth = 150;
-
-                const scale = Math.min(1, maxWidth / img.width);
-
-                canvas.width = Math.round(img.width * scale);
-
-                canvas.height = Math.round(img.height * scale);
-
-                const ctx = canvas.getContext("2d");
-
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-                const compressedImage =
-                    canvas.toDataURL("image/jpeg", 0.1);
-
-                if(compressedImage.length > 900000){
-
-                    alert("Image is still too large. Please upload a smaller image.");
-
-                    return;
-
-                }
-
-                await addDoc(collection(db, "submissions"), {
-
-                    participant: localStorage.getItem("currentUser") || "Guest",
-
-                    email: localStorage.getItem("currentEmail") || "",
-
-                    prompt: document.getElementById("prompt").value.trim(),
-
-                    image: compressedImage,
-
-                    submittedAt: new Date().toLocaleString()
-
-                });
-
-                alert("🎉 Design submitted successfully!");
-
-                document.getElementById("prompt").value = "";
-
-                imageInput.value = "";
-
-                preview.style.display = "none";
-
+        // Upload image to Cloudinary
+        const uploadResponse = await fetch(
+            "https://api.cloudinary.com/v1_1/pydcirpp/image/upload",
+            {
+                method: "POST",
+                body: formData
             }
+        );
 
-            catch(error){
+        const uploadData = await uploadResponse.json();
 
-                console.error(error);
+        if (!uploadData.secure_url) {
+            throw new Error(uploadData.error?.message || "Image upload failed");
+        }
 
-                alert("Submission failed: " + error.message);
+        // Save only the image URL in Firestore
+        await addDoc(collection(db, "submissions"), {
+            participant: localStorage.getItem("currentUser") || "Guest",
+            email: localStorage.getItem("currentEmail") || "",
+            prompt: document.getElementById("prompt").value.trim(),
+            image: uploadData.secure_url,
+            submittedAt: new Date().toLocaleString()
+        });
 
-            }
+        alert("🎉 Design submitted successfully!");
 
-        };
+        document.getElementById("prompt").value = "";
+        imageInput.value = "";
+        preview.style.display = "none";
 
-        img.src = event.target.result;
+    } catch (error) {
 
-    };
+        console.error(error);
+        alert("Submission failed: " + error.message);
 
-    reader.readAsDataURL(file);
+    }
 
 });
 
