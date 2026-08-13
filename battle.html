@@ -114,24 +114,33 @@ imageInput.addEventListener("change", (e) => {
 });
 
 
-// Submit design with strong compression
+// Submit design
 
 document.getElementById("submitBtn").addEventListener("click", async () => {
 
     const file = imageInput.files[0];
 
-    if (!file) {
+    if(!file){
         alert("Please upload the generated image first.");
         return;
     }
 
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", "ml_default");
+    const submitBtn = document.getElementById("submitBtn");
 
-    try {
+    submitBtn.disabled = true;
 
-        // Upload image to Cloudinary
+    submitBtn.innerText = "Uploading...";
+
+    try{
+
+        // Upload to Cloudinary
+
+        const formData = new FormData();
+
+        formData.append("file", file);
+
+        formData.append("upload_preset", "ml_default");
+
         const uploadResponse = await fetch(
             "https://api.cloudinary.com/v1_1/pydcirpp/image/upload",
             {
@@ -142,29 +151,53 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
 
         const uploadData = await uploadResponse.json();
 
-        if (!uploadData.secure_url) {
-            throw new Error(uploadData.error?.message || "Image upload failed");
+        console.log(uploadData);
+
+        if(!uploadResponse.ok || !uploadData.secure_url){
+
+            throw new Error(uploadData.error?.message || "Cloudinary upload failed");
+
         }
 
-        // Save only the image URL in Firestore
+        // Save only the Cloudinary URL
+
         await addDoc(collection(db, "submissions"), {
+
             participant: localStorage.getItem("currentUser") || "Guest",
+
             email: localStorage.getItem("currentEmail") || "",
+
             prompt: document.getElementById("prompt").value.trim(),
+
             image: uploadData.secure_url,
+
             submittedAt: new Date().toLocaleString()
+
         });
 
         alert("🎉 Design submitted successfully!");
 
         document.getElementById("prompt").value = "";
+
         imageInput.value = "";
+
         preview.style.display = "none";
 
-    } catch (error) {
+    }
+
+    catch(error){
 
         console.error(error);
+
         alert("Submission failed: " + error.message);
+
+    }
+
+    finally{
+
+        submitBtn.disabled = false;
+
+        submitBtn.innerText = "✅ Submit Design";
 
     }
 
