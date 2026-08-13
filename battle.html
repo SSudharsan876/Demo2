@@ -8,163 +8,103 @@
 <body>
 
 <div class="container">
+    <h1>⚡ Prompt Forge</h1>
+    <h2>Canva AI Design Generator</h2>
 
 ```
-<h1>⚡ Prompt Forge</h1>
-<h2>Canva AI Design Generator</h2>
-
 <p id="user"></p>
 
 <div class="generator-box">
-
-    <textarea id="prompt" placeholder="Describe your logo or design idea...
-```
-
-Example: Create a handwritten signature style SD logo with elegant gold foil effect on a black background"></textarea>
-
-```
-    <button onclick="generateDesign()">🎨 Generate Design in Canva AI</button>
-
+    <textarea id="prompt" placeholder="Describe your design prompt..."></textarea>
+    <button id="generateBtn">🎨 Generate Design in Canva AI</button>
 </div>
 
 <h3 id="loading"></h3>
 
 <div id="result">
-
     <h3>Upload your Canva AI generated image</h3>
-
     <input type="file" id="imageUpload" accept="image/*">
-
     <br><br>
-
     <img id="preview" style="max-width:100%; display:none; border-radius:15px;">
-
     <br><br>
-
-    <button onclick="submitDesign()">✅ Submit Design</button>
-
+    <button id="submitBtn">✅ Submit Design</button>
 </div>
 ```
 
 </div>
 
 <script type="module">
-
 import { db } from "./firebase.js";
-
-import {
-    collection,
-    addDoc
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-
-// Show participant
+import { collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 document.getElementById("user").innerText =
-"Participant: " + (localStorage.getItem("currentUser") || "Guest");
-
-
-// Open Canva AI
-
-window.generateDesign = function(){
-
-    const prompt = document.getElementById("prompt").value.trim();
-
-    if(!prompt){
-        alert("Enter your design prompt");
-        return;
-    }
-
-    const canvaLink =
-    `https://www.canva.com/ai-image-generator/?prompt=${encodeURIComponent(prompt)}`;
-
-    window.open(canvaLink, "_blank");
-
-    document.getElementById("loading").innerText =
-    "Canva AI opened in a new tab. Generate the design, download it, and upload it below.";
-
-};
-
-
-// Preview image
+  "Participant: " + (localStorage.getItem("currentUser") || "Guest");
 
 const imageInput = document.getElementById("imageUpload");
 const preview = document.getElementById("preview");
 
-imageInput.addEventListener("change", function(e){
+document.getElementById("generateBtn").addEventListener("click", () => {
+  const prompt = document.getElementById("prompt").value.trim();
+  if (!prompt) {
+    alert("Enter your design prompt");
+    return;
+  }
 
-    const file = e.target.files[0];
+  const canvaLink =
+    `https://www.canva.com/ai-image-generator/?prompt=${encodeURIComponent(prompt)}`;
 
-    if(!file) return;
+  window.open(canvaLink, "_blank");
 
-    const reader = new FileReader();
-
-    reader.onload = function(event){
-
-        preview.src = event.target.result;
-
-        preview.style.display = "block";
-
-    };
-
-    reader.readAsDataURL(file);
-
+  document.getElementById("loading").innerText =
+    "Canva AI opened in a new tab. Generate the design, download it, and upload it below.";
 });
 
+imageInput.addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
 
-// Submit design
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    preview.src = event.target.result;
+    preview.style.display = "block";
+  };
+  reader.readAsDataURL(file);
+});
 
-window.submitDesign = async function(){
+document.getElementById("submitBtn").addEventListener("click", async () => {
+  const file = imageInput.files[0];
 
-    const participant = localStorage.getItem("currentUser") || "Guest";
-    const email = localStorage.getItem("currentEmail") || "";
-    const prompt = document.getElementById("prompt").value.trim();
+  if (!file) {
+    alert("Please upload the generated image first.");
+    return;
+  }
 
-    const file = imageInput.files[0];
+  const reader = new FileReader();
 
-    if(!file){
-        alert("Please upload the generated image first.");
-        return;
+  reader.onload = async (event) => {
+    try {
+      await addDoc(collection(db, "submissions"), {
+        participant: localStorage.getItem("currentUser") || "Guest",
+        email: localStorage.getItem("currentEmail") || "",
+        prompt: document.getElementById("prompt").value.trim(),
+        image: event.target.result,
+        submittedAt: new Date().toLocaleString()
+      });
+
+      alert("🎉 Design submitted successfully!");
+
+      document.getElementById("prompt").value = "";
+      imageInput.value = "";
+      preview.style.display = "none";
+
+    } catch (error) {
+      console.error(error);
+      alert("Submission failed: " + error.message);
     }
+  };
 
-    const reader = new FileReader();
-
-    reader.onload = async function(event){
-
-        try{
-
-            await addDoc(collection(db, "submissions"),{
-
-                participant,
-                email,
-                prompt,
-                image: event.target.result,
-                submittedAt: new Date().toLocaleString()
-
-            });
-
-            alert("🎉 Design submitted successfully!");
-
-            document.getElementById("prompt").value = "";
-            imageInput.value = "";
-            preview.style.display = "none";
-
-        }
-
-        catch(error){
-
-            console.error(error);
-
-            alert("Submission failed: " + error.message);
-
-        }
-
-    };
-
-    reader.readAsDataURL(file);
-
-};
-
+  reader.readAsDataURL(file);
+});
 </script>
 
 </body>
