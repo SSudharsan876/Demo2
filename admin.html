@@ -13,6 +13,10 @@
 <h1>⚡ Prompt Forge</h1>
 <h2>Admin Dashboard</h2>
 
+<button id="refreshBtn">🔄 Refresh Data</button>
+
+<hr style="margin:20px 0;">
+
 <h3>Participant Approval</h3>
 
 <table border="1" width="100%">
@@ -28,9 +32,6 @@
     </thead>
     <tbody id="table"></tbody>
 </table>
-
-<br>
-<button onclick="refreshData()">🔄 Refresh Data</button>
 
 <hr style="margin:40px 0;">
 
@@ -53,7 +54,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 
-// ---------------- LOAD USERS ----------------
+// ---------------- Load Users ----------------
 
 async function loadUsers(){
 
@@ -61,50 +62,39 @@ async function loadUsers(){
 
     tbody.innerHTML = "";
 
-    const snapshot = await getDocs(collection(db, "users"));
-
-    snapshot.forEach((userDoc)=>{
-
-        const u = userDoc.data();
-
-        tbody.innerHTML += `
-            <tr>
-                <td>${u.fullName || ""}</td>
-                <td>${u.college || ""}</td>
-                <td>${u.department || ""}</td>
-                <td>${u.email || ""}</td>
-                <td>${u.emailApproved ? "Approved" : "Pending"}</td>
-                <td>
-                    ${
-                        u.emailApproved
-                        ? "Approved"
-                        : `<button onclick="approveUser('${userDoc.id}')">Approve</button>`
-                    }
-                </td>
-            </tr>
-        `;
-
-    });
-
-}
-
-
-// ---------------- APPROVE USER ----------------
-
-window.approveUser = async function(id){
-
     try{
 
-        await updateDoc(
-            doc(db, "users", id),
-            {
-                emailApproved: true
-            }
-        );
+        const snapshot = await getDocs(collection(db, "users"));
 
-        alert("Participant approved successfully!");
+        snapshot.forEach((userDoc)=>{
 
-        loadUsers();
+            const u = userDoc.data();
+
+            tbody.innerHTML += `
+                <tr>
+                    <td>${u.fullName || ""}</td>
+                    <td>${u.college || ""}</td>
+                    <td>${u.department || ""}</td>
+                    <td>${u.email || ""}</td>
+                    <td>${u.emailApproved ? "Approved" : "Pending"}</td>
+                    <td>
+                        ${
+                            u.emailApproved
+                            ? "Approved"
+                            : `<button class="approve-btn" data-id="${userDoc.id}">Approve</button>`
+                        }
+                    </td>
+                </tr>
+            `;
+
+        });
+
+        document.querySelectorAll(".approve-btn").forEach(btn => {
+            btn.addEventListener("click", async () => {
+                const id = btn.getAttribute("data-id");
+                await approveUser(id);
+            });
+        });
 
     }
 
@@ -112,14 +102,43 @@ window.approveUser = async function(id){
 
         console.error(error);
 
-        alert("Approval failed: " + error.message);
+        alert("Failed to load users");
 
     }
 
-};
+}
 
 
-// ---------------- LOAD SUBMISSIONS ----------------
+// ---------------- Approve User ----------------
+
+async function approveUser(id){
+
+    try{
+
+        await updateDoc(doc(db, "users", id),{
+
+            emailApproved: true
+
+        });
+
+        alert("Participant approved successfully!");
+
+        await loadUsers();
+
+    }
+
+    catch(error){
+
+        console.error(error);
+
+        alert("Approval failed");
+
+    }
+
+}
+
+
+// ---------------- Load Submissions ----------------
 
 async function loadSubmissions(){
 
@@ -127,64 +146,75 @@ async function loadSubmissions(){
 
     box.innerHTML = "";
 
-    const snapshot = await getDocs(collection(db, "submissions"));
+    try{
 
-    if(snapshot.empty){
+        const snapshot = await getDocs(collection(db, "submissions"));
 
-        box.innerHTML = "<p>No designs submitted yet.</p>";
+        if(snapshot.empty){
 
-        return;
+            box.innerHTML = "<p>No designs submitted yet.</p>";
+
+            return;
+
+        }
+
+        snapshot.forEach((designDoc)=>{
+
+            const d = designDoc.data();
+
+            box.innerHTML += `
+                <div class="design-card" style="margin-top:20px; background:#334155; padding:20px; border-radius:12px;">
+
+                    <h3>${d.participant || "Participant"}</h3>
+
+                    <p><b>Email:</b> ${d.email || ""}</p>
+
+                    <p><b>Prompt:</b> ${d.prompt || ""}</p>
+
+                    <p><b>Submitted:</b> ${d.submittedAt || ""}</p>
+
+                    <img src="${d.image}" style="max-width:300px; border-radius:10px;" alt="Submitted Design">
+
+                    <br><br>
+
+                    <a href="${d.image}" target="_blank">
+                        <button>View Design</button>
+                    </a>
+
+                </div>
+            `;
+
+        });
 
     }
 
-    snapshot.forEach((designDoc)=>{
+    catch(error){
 
-        const d = designDoc.data();
+        console.error(error);
 
-        box.innerHTML += `
-            <div class="design-card" style="margin-top:20px; background:#334155; padding:20px; border-radius:12px;">
+        alert("Failed to load submissions");
 
-                <h3>${d.participant || "Participant"}</h3>
-
-                <p><b>Email:</b> ${d.email || ""}</p>
-
-                <p><b>Prompt:</b> ${d.prompt || ""}</p>
-
-                <p><b>Submitted:</b> ${d.submittedAt || ""}</p>
-
-                <img src="${d.image}" style="width:300px; border-radius:10px;" alt="Submitted Design">
-
-                <br><br>
-
-                <a href="${d.image}" target="_blank">
-                    <button>View Design</button>
-                </a>
-
-            </div>
-        `;
-
-    });
+    }
 
 }
 
 
-// ---------------- REFRESH ----------------
+// ---------------- Refresh Button ----------------
 
-window.refreshData = async function(){
+document.getElementById("refreshBtn").addEventListener("click", async () => {
 
     await loadUsers();
 
     await loadSubmissions();
 
-};
+});
 
 
-// ---------------- INITIAL LOAD ----------------
+// ---------------- Initial Load (ONLY ONCE) ----------------
 
-refreshData();
+loadUsers();
 
-// Auto refresh every 5 seconds
-setInterval(refreshData, 5000);
+loadSubmissions();
 
 </script>
 
