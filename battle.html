@@ -8,10 +8,11 @@
 <body>
 
 <div class="container">
-    <h1>⚡ Prompt Forge</h1>
-    <h2>Canva AI Design Generator</h2>
 
 ```
+<h1>⚡ Prompt Forge</h1>
+<h2>Canva AI Design Generator</h2>
+
 <p id="user"></p>
 
 <div class="generator-box">
@@ -23,10 +24,15 @@
 
 <div id="result">
     <h3>Upload your Canva AI generated image</h3>
+
     <input type="file" id="imageUpload" accept="image/*">
+
     <br><br>
+
     <img id="preview" style="max-width:100%; display:none; border-radius:15px;">
+
     <br><br>
+
     <button id="submitBtn">✅ Submit Design</button>
 </div>
 ```
@@ -34,77 +40,157 @@
 </div>
 
 <script type="module">
+
 import { db } from "./firebase.js";
-import { collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+import {
+    collection,
+    addDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+
+// Show participant
 
 document.getElementById("user").innerText =
-  "Participant: " + (localStorage.getItem("currentUser") || "Guest");
+    "Participant: " + (localStorage.getItem("currentUser") || "Guest");
+
+
+// Canva AI
+
+document.getElementById("generateBtn").addEventListener("click", () => {
+
+    const prompt = document.getElementById("prompt").value.trim();
+
+    if(!prompt){
+        alert("Enter your design prompt");
+        return;
+    }
+
+    const canvaLink =
+        `https://www.canva.com/ai-image-generator/?prompt=${encodeURIComponent(prompt)}`;
+
+    window.open(canvaLink, "_blank");
+
+    document.getElementById("loading").innerText =
+        "Canva AI opened in a new tab. Generate the design, download it, and upload it below.";
+
+});
+
+
+// Image preview
 
 const imageInput = document.getElementById("imageUpload");
 const preview = document.getElementById("preview");
 
-document.getElementById("generateBtn").addEventListener("click", () => {
-  const prompt = document.getElementById("prompt").value.trim();
-  if (!prompt) {
-    alert("Enter your design prompt");
-    return;
-  }
-
-  const canvaLink =
-    `https://www.canva.com/ai-image-generator/?prompt=${encodeURIComponent(prompt)}`;
-
-  window.open(canvaLink, "_blank");
-
-  document.getElementById("loading").innerText =
-    "Canva AI opened in a new tab. Generate the design, download it, and upload it below.";
-});
-
 imageInput.addEventListener("change", (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
 
-  const reader = new FileReader();
-  reader.onload = (event) => {
-    preview.src = event.target.result;
-    preview.style.display = "block";
-  };
-  reader.readAsDataURL(file);
+    const file = e.target.files[0];
+
+    if(!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = (event) => {
+
+        preview.src = event.target.result;
+
+        preview.style.display = "block";
+
+    };
+
+    reader.readAsDataURL(file);
+
 });
 
-document.getElementById("submitBtn").addEventListener("click", async () => {
-  const file = imageInput.files[0];
 
-  if (!file) {
-    alert("Please upload the generated image first.");
-    return;
-  }
+// Submit design with strong compression
 
-  const reader = new FileReader();
+document.getElementById("submitBtn").addEventListener("click", () => {
 
-  reader.onload = async (event) => {
-    try {
-      await addDoc(collection(db, "submissions"), {
-        participant: localStorage.getItem("currentUser") || "Guest",
-        email: localStorage.getItem("currentEmail") || "",
-        prompt: document.getElementById("prompt").value.trim(),
-        image: event.target.result,
-        submittedAt: new Date().toLocaleString()
-      });
+    const file = imageInput.files[0];
 
-      alert("🎉 Design submitted successfully!");
-
-      document.getElementById("prompt").value = "";
-      imageInput.value = "";
-      preview.style.display = "none";
-
-    } catch (error) {
-      console.error(error);
-      alert("Submission failed: " + error.message);
+    if(!file){
+        alert("Please upload the generated image first.");
+        return;
     }
-  };
 
-  reader.readAsDataURL(file);
+    const reader = new FileReader();
+
+    reader.onload = (event) => {
+
+        const img = new Image();
+
+        img.onload = async () => {
+
+            try{
+
+                const canvas = document.createElement("canvas");
+
+                const maxWidth = 300;
+
+                const scale = Math.min(1, maxWidth / img.width);
+
+                canvas.width = img.width * scale;
+
+                canvas.height = img.height * scale;
+
+                const ctx = canvas.getContext("2d");
+
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                const compressedImage =
+                    canvas.toDataURL("image/jpeg", 0.2);
+
+                if(compressedImage.length > 900000){
+
+                    alert("Image is still too large. Please upload a smaller image.");
+
+                    return;
+
+                }
+
+                await addDoc(collection(db, "submissions"), {
+
+                    participant: localStorage.getItem("currentUser") || "Guest",
+
+                    email: localStorage.getItem("currentEmail") || "",
+
+                    prompt: document.getElementById("prompt").value.trim(),
+
+                    image: compressedImage,
+
+                    submittedAt: new Date().toLocaleString()
+
+                });
+
+                alert("🎉 Design submitted successfully!");
+
+                document.getElementById("prompt").value = "";
+
+                imageInput.value = "";
+
+                preview.style.display = "none";
+
+            }
+
+            catch(error){
+
+                console.error(error);
+
+                alert("Submission failed: " + error.message);
+
+            }
+
+        };
+
+        img.src = event.target.result;
+
+    };
+
+    reader.readAsDataURL(file);
+
 });
+
 </script>
 
 </body>
