@@ -334,4 +334,17 @@ overflow-x:auto;
 white-space:nowrap;
 }
 
+  .btn-danger{
+background:#dc2626;
+color:white;
+border:none;
+padding:10px 16px;
+border-radius:10px;
+cursor:pointer;
+transition:0.3s;
 }
+
+.btn-danger:hover
+
+}
+
