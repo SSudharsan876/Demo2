@@ -1,205 +1,212 @@
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
 <head>
-    <title>Prompt Forge - Canva AI Generator</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prompt Forge | AI Design Workspace</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div class="container">
 
-```
-<h1>⚡ Prompt Forge</h1>
-<h2>Canva AI Design Generator</h2>
-
-<p id="user"></p>
-
-<div class="generator-box">
-
-    <textarea id="prompt" placeholder="Describe your design prompt...
-```
-
-Example: Create a handwritten signature style SD logo with elegant gold foil effect on a black background"></textarea>
+  <div class="workspace-header">
 
 ```
-    <button id="generateBtn">🎨 Generate Design in Canva AI</button>
+<div>
+
+  <span class="badge">AI Design Workspace</span>
+
+  <h1>Prompt Forge</h1>
+
+  <p>Create your design using Canva AI and submit your final artwork.</p>
 
 </div>
 
-<h3 id="loading"></h3>
+<div class="participant-chip">
+  <span>Participant</span>
+  <strong id="user">Guest</strong>
+</div>
+```
 
-<div id="result">
+  </div>
 
-    <h3>Upload your Canva AI generated image</h3>
+  <div class="workspace-grid">
+
+```
+<div class="workspace-panel">
+
+  <h2>Design Prompt</h2>
+
+  <textarea id="prompt" placeholder="Describe your poster, logo, banner, or creative concept...
+```
+
+Example:
+Design a premium A3 vertical college symposium poster for Prompt Forge with futuristic AI visuals, blue and purple neon lighting, bold typography, holographic interface elements, and a professional tech event aesthetic."></textarea>
+
+```
+  <button id="generateBtn" class="btn btn-primary">Launch Canva AI</button>
+
+  <p id="loading" class="helper-text"></p>
+
+</div>
+
+<div class="workspace-panel">
+
+  <h2>Upload Final Design</h2>
+
+  <div class="upload-box">
 
     <input type="file" id="imageUpload" accept="image/*">
 
-    <br><br>
+    <img id="preview" class="preview-image" style="display:none;" alt="Design preview">
 
-    <img id="preview" style="max-width:100%; display:none; border-radius:15px;">
+  </div>
 
-    <br><br>
+  <button id="submitBtn" class="btn btn-primary">Submit Design</button>
 
-    <button id="submitBtn">✅ Submit Design</button>
+  <p class="helper-text">Only your final Canva-generated design should be submitted.</p>
 
 </div>
 ```
+
+  </div>
 
 </div>
 
 <script type="module">
 
-import { db } from "./firebase.js";
+import { db } from './firebase.js';
 
 import {
+  collection,
+  addDoc
+} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
-    collection,
-    addDoc
+document.getElementById('user').innerText =
+  localStorage.getItem('currentUser') || 'Guest';
 
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const imageInput = document.getElementById('imageUpload');
+const preview = document.getElementById('preview');
 
+document.getElementById('generateBtn').addEventListener('click', () => {
 
-// Show participant
+  const prompt = document.getElementById('prompt').value.trim();
 
-document.getElementById("user").innerText =
-    "Participant: " + (localStorage.getItem("currentUser") || "Guest");
+  if(!prompt){
+    alert('Enter your design prompt');
+    return;
+  }
 
+  const canvaLink =
+    `https://www.canva.com/ai-image-generator/?prompt=${encodeURIComponent(prompt)}`;
 
-// Canva AI
+  window.open(canvaLink, '_blank');
 
-document.getElementById("generateBtn").addEventListener("click", () => {
-
-    const prompt = document.getElementById("prompt").value.trim();
-
-    if(!prompt){
-        alert("Enter your design prompt");
-        return;
-    }
-
-    const canvaLink =
-        `https://www.canva.com/ai-image-generator/?prompt=${encodeURIComponent(prompt)}`;
-
-    window.open(canvaLink, "_blank");
-
-    document.getElementById("loading").innerText =
-        "Canva AI opened in a new tab. Generate the design, download it, and upload it below.";
+  document.getElementById('loading').innerText =
+    'Canva AI opened in a new tab. Generate your design, download it, and upload it below.';
 
 });
 
+imageInput.addEventListener('change', (e) => {
 
-// Image preview
+  const file = e.target.files[0];
 
-const imageInput = document.getElementById("imageUpload");
-const preview = document.getElementById("preview");
+  if(!file) return;
 
-imageInput.addEventListener("change", (e) => {
+  const reader = new FileReader();
 
-    const file = e.target.files[0];
+  reader.onload = (event) => {
 
-    if(!file) return;
+    preview.src = event.target.result;
 
-    const reader = new FileReader();
+    preview.style.display = 'block';
 
-    reader.onload = (event) => {
+  };
 
-        preview.src = event.target.result;
-
-        preview.style.display = "block";
-
-    };
-
-    reader.readAsDataURL(file);
+  reader.readAsDataURL(file);
 
 });
 
+document.getElementById('submitBtn').addEventListener('click', async () => {
 
-// Submit design
+  const file = imageInput.files[0];
 
-document.getElementById("submitBtn").addEventListener("click", async () => {
+  if(!file){
+    alert('Please upload the generated image first.');
+    return;
+  }
 
-    const file = imageInput.files[0];
+  const submitBtn = document.getElementById('submitBtn');
 
-    if(!file){
-        alert("Please upload the generated image first.");
-        return;
-    }
+  submitBtn.disabled = true;
 
-    const submitBtn = document.getElementById("submitBtn");
+  submitBtn.innerText = 'Submitting...';
 
-    submitBtn.disabled = true;
+  try{
 
-    submitBtn.innerText = "Uploading...";
+    const formData = new FormData();
 
-    try{
+    formData.append('file', file);
 
-        // Upload to Cloudinary
+    formData.append('upload_preset', 'ml_default');
 
-        const formData = new FormData();
+    const uploadResponse = await fetch(
+      'https://api.cloudinary.com/v1_1/pydcirpp/image/upload',
+      {
+        method: 'POST',
+        body: formData
+      }
+    );
 
-        formData.append("file", file);
+    const uploadData = await uploadResponse.json();
 
-        formData.append("upload_preset", "ml_default");
+    if(!uploadResponse.ok || !uploadData.secure_url){
 
-        const uploadResponse = await fetch(
-            "https://api.cloudinary.com/v1_1/pydcirpp/image/upload",
-            {
-                method: "POST",
-                body: formData
-            }
-        );
-
-        const uploadData = await uploadResponse.json();
-
-        console.log(uploadData);
-
-        if(!uploadResponse.ok || !uploadData.secure_url){
-
-            throw new Error(uploadData.error?.message || "Cloudinary upload failed");
-
-        }
-
-        // Save only the Cloudinary URL
-
-        await addDoc(collection(db, "submissions"), {
-
-            participant: localStorage.getItem("currentUser") || "Guest",
-
-            email: localStorage.getItem("currentEmail") || "",
-
-            prompt: document.getElementById("prompt").value.trim(),
-
-            image: uploadData.secure_url,
-
-            submittedAt: new Date().toLocaleString()
-
-        });
-
-        alert("🎉 Design submitted successfully!");
-
-        document.getElementById("prompt").value = "";
-
-        imageInput.value = "";
-
-        preview.style.display = "none";
+      throw new Error(uploadData.error?.message || 'Cloudinary upload failed');
 
     }
 
-    catch(error){
+    await addDoc(collection(db, 'submissions'), {
 
-        console.error(error);
+      participant: localStorage.getItem('currentUser') || 'Guest',
 
-        alert("Submission failed: " + error.message);
+      email: localStorage.getItem('currentEmail') || '',
 
-    }
+      prompt: document.getElementById('prompt').value.trim(),
 
-    finally{
+      image: uploadData.secure_url,
 
-        submitBtn.disabled = false;
+      submittedAt: new Date().toLocaleString()
 
-        submitBtn.innerText = "✅ Submit Design";
+    });
 
-    }
+    alert('🎉 Design submitted successfully!');
+
+    document.getElementById('prompt').value = '';
+
+    imageInput.value = '';
+
+    preview.style.display = 'none';
+
+  }
+
+  catch(error){
+
+    console.error(error);
+
+    alert('Submission failed: ' + error.message);
+
+  }
+
+  finally{
+
+    submitBtn.disabled = false;
+
+    submitBtn.innerText = 'Submit Design';
+
+  }
 
 });
 
