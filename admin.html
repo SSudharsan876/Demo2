@@ -1,220 +1,186 @@
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
 <head>
-    <title>Prompt Forge - Admin Dashboard</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prompt Forge | Admin Dashboard</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div class="container">
 
+  <div class="workspace-header">
+
 ```
-<h1>⚡ Prompt Forge</h1>
-<h2>Admin Dashboard</h2>
+<div>
 
-<button id="refreshBtn">🔄 Refresh Data</button>
+  <span class="badge">Admin Panel</span>
 
-<hr style="margin:20px 0;">
+  <h1>Prompt Forge Dashboard</h1>
 
-<h3>Participant Approval</h3>
+  <p>Approve participants and review submitted AI designs.</p>
 
-<table border="1" width="100%">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>College</th>
-            <th>Department</th>
-            <th>Email</th>
-            <th>Status</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody id="table"></tbody>
-</table>
+</div>
 
-<hr style="margin:40px 0;">
-
-<h3>Submitted Designs</h3>
-
-<div id="submissions"></div>
+<button id="refreshBtn" class="btn btn-primary">Refresh Data</button>
 ```
+
+  </div>
+
+  <div class="grid">
+
+```
+<div class="stat">
+  <h4>Total Participants</h4>
+  <div class="value" id="totalParticipants">0</div>
+</div>
+
+<div class="stat">
+  <h4>Approved</h4>
+  <div class="value" id="approvedCount">0</div>
+</div>
+
+<div class="stat">
+  <h4>Submissions</h4>
+  <div class="value" id="submissionCount">0</div>
+</div>
+```
+
+  </div>
+
+  <hr>
+
+  <h2>Participant Approval</h2>
+
+  <div id="participants" class="grid"></div>
+
+  <hr>
+
+  <h2>Submitted Designs</h2>
+
+  <div id="submissions" class="grid"></div>
 
 </div>
 
 <script type="module">
 
-import { db } from "./firebase.js";
+import { db } from './firebase.js';
 
 import {
-    collection,
-    getDocs,
-    doc,
-    updateDoc
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-
-// ---------------- Load Users ----------------
+  collection,
+  getDocs,
+  doc,
+  updateDoc
+} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
 async function loadUsers(){
 
-    const tbody = document.getElementById("table");
+  const container = document.getElementById('participants');
 
-    tbody.innerHTML = "";
+  container.innerHTML = '';
 
-    try{
+  const snapshot = await getDocs(collection(db,'users'));
 
-        const snapshot = await getDocs(collection(db, "users"));
+  let total = 0;
+  let approved = 0;
 
-        snapshot.forEach((userDoc)=>{
+  snapshot.forEach((userDoc)=>{
 
-            const u = userDoc.data();
+    total++;
 
-            tbody.innerHTML += `
-                <tr>
-                    <td>${u.fullName || ""}</td>
-                    <td>${u.college || ""}</td>
-                    <td>${u.department || ""}</td>
-                    <td>${u.email || ""}</td>
-                    <td>${u.emailApproved ? "Approved" : "Pending"}</td>
-                    <td>
-                        ${
-                            u.emailApproved
-                            ? "Approved"
-                            : `<button class="approve-btn" data-id="${userDoc.id}">Approve</button>`
-                        }
-                    </td>
-                </tr>
-            `;
+    const u = userDoc.data();
 
-        });
+    if(u.emailApproved) approved++;
 
-        document.querySelectorAll(".approve-btn").forEach(btn => {
-            btn.addEventListener("click", async () => {
-                const id = btn.getAttribute("data-id");
-                await approveUser(id);
-            });
-        });
+    const card = document.createElement('div');
 
-    }
+    card.className = 'card';
 
-    catch(error){
+    card.innerHTML = `
+      <h3>${u.fullName || 'Participant'}</h3>
+      <p><strong>College:</strong> ${u.college || ''}</p>
+      <p><strong>Department:</strong> ${u.department || ''}</p>
+      <p><strong>Email:</strong> ${u.email || ''}</p>
+      <p><strong>Status:</strong> ${u.emailApproved ? 'Approved' : 'Pending'}</p>
+      ${
+        u.emailApproved
+        ? '<button class="btn btn-success" disabled>Approved</button>'
+        : `<button class="btn btn-primary approve-btn" data-id="${userDoc.id}">Approve</button>`
+      }
+    `;
 
-        console.error(error);
+    container.appendChild(card);
 
-        alert("Failed to load users");
+  });
 
-    }
+  document.getElementById('totalParticipants').innerText = total;
+  document.getElementById('approvedCount').innerText = approved;
 
-}
-
-
-// ---------------- Approve User ----------------
-
-async function approveUser(id){
-
-    try{
-
-        await updateDoc(doc(db, "users", id),{
-
-            emailApproved: true
-
-        });
-
-        alert("Participant approved successfully!");
-
-        await loadUsers();
-
-    }
-
-    catch(error){
-
-        console.error(error);
-
-        alert("Approval failed");
-
-    }
+  document.querySelectorAll('.approve-btn').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const id = btn.getAttribute('data-id');
+      await updateDoc(doc(db,'users',id),{
+        emailApproved:true
+      });
+      await refreshData();
+    });
+  });
 
 }
-
-
-// ---------------- Load Submissions ----------------
 
 async function loadSubmissions(){
 
-    const box = document.getElementById("submissions");
+  const container = document.getElementById('submissions');
 
-    box.innerHTML = "";
+  container.innerHTML = '';
 
-    try{
+  const snapshot = await getDocs(collection(db,'submissions'));
 
-        const snapshot = await getDocs(collection(db, "submissions"));
+  let count = 0;
 
-        if(snapshot.empty){
+  snapshot.forEach((designDoc)=>{
 
-            box.innerHTML = "<p>No designs submitted yet.</p>";
+    count++;
 
-            return;
+    const d = designDoc.data();
 
-        }
+    const card = document.createElement('div');
 
-        snapshot.forEach((designDoc)=>{
+    card.className = 'design-card';
 
-            const d = designDoc.data();
+    card.innerHTML = `
+      <h3>${d.participant || 'Participant'}</h3>
+      <p><strong>Email:</strong> ${d.email || ''}</p>
+      <p><strong>Prompt:</strong> ${d.prompt || ''}</p>
+      <p><strong>Submitted:</strong> ${d.submittedAt || ''}</p>
+      <img src="${d.image}" alt="Submitted Design">
+      <br><br>
+      <a href="${d.image}" target="_blank">
+        <button class="btn btn-secondary">View Full Design</button>
+      </a>
+    `;
 
-            box.innerHTML += `
-                <div class="design-card" style="margin-top:20px; background:#334155; padding:20px; border-radius:12px;">
+    container.appendChild(card);
 
-                    <h3>${d.participant || "Participant"}</h3>
+  });
 
-                    <p><b>Email:</b> ${d.email || ""}</p>
-
-                    <p><b>Prompt:</b> ${d.prompt || ""}</p>
-
-                    <p><b>Submitted:</b> ${d.submittedAt || ""}</p>
-
-                    <img src="${d.image}" style="max-width:300px; border-radius:10px;" alt="Submitted Design">
-
-                    <br><br>
-
-                    <a href="${d.image}" target="_blank">
-                        <button>View Design</button>
-                    </a>
-
-                </div>
-            `;
-
-        });
-
-    }
-
-    catch(error){
-
-        console.error(error);
-
-        alert("Failed to load submissions");
-
-    }
+  document.getElementById('submissionCount').innerText = count;
 
 }
 
+async function refreshData(){
 
-// ---------------- Refresh Button ----------------
+  await loadUsers();
 
-document.getElementById("refreshBtn").addEventListener("click", async () => {
+  await loadSubmissions();
 
-    await loadUsers();
+}
 
-    await loadSubmissions();
+document.getElementById('refreshBtn').addEventListener('click', refreshData);
 
-});
-
-
-// ---------------- Initial Load (ONLY ONCE) ----------------
-
-loadUsers();
-
-loadSubmissions();
+refreshData();
 
 </script>
 
