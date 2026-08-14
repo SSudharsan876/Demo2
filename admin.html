@@ -15,13 +15,9 @@
 <div class="workspace-header">
 
     <div>
-
         <span class="badge">Admin Panel</span>
-
         <h1>Prompt Forge Dashboard</h1>
-
         <p>Approve participants and review submitted AI designs.</p>
-
     </div>
 
     <button id="refreshBtn" class="btn btn-primary">Refresh Data</button>
@@ -37,7 +33,6 @@
     <table>
 
         <thead>
-
             <tr>
                 <th>Name</th>
                 <th>College</th>
@@ -46,7 +41,6 @@
                 <th>Status</th>
                 <th>Action</th>
             </tr>
-
         </thead>
 
         <tbody id="table"></tbody>
@@ -66,77 +60,91 @@
 
 <script type="module">
 
-import { db } from './firebase.js';
+import { db } from "./firebase.js";
 
 import {
     collection,
     getDocs,
     doc,
-    updateDoc
-} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+    updateDoc,
+    deleteDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 
 // ---------------- LOAD USERS ----------------
 
 async function loadUsers(){
 
-    const tbody = document.getElementById('table');
+    const tbody = document.getElementById("table");
 
-    tbody.innerHTML = '';
+    tbody.innerHTML = "";
 
-    const snapshot = await getDocs(collection(db,'users'));
+    try{
 
-    snapshot.forEach((userDoc)=>{
+        const snapshot = await getDocs(collection(db, "users"));
 
-        const u = userDoc.data();
+        snapshot.forEach((userDoc)=>{
 
-        tbody.innerHTML += `
-            <tr>
+            const u = userDoc.data();
 
-                <td>${u.fullName || ''}</td>
+            // Show only pending participants
+            if(u.emailApproved) return;
 
-                <td>${u.college || ''}</td>
+            tbody.innerHTML += `
+                <tr>
 
-                <td>${u.department || ''}</td>
+                    <td>${u.fullName || ""}</td>
 
-                <td>${u.email || ''}</td>
+                    <td>${u.college || ""}</td>
 
-                <td>${u.emailApproved ? 'Approved' : 'Pending'}</td>
+                    <td>${u.department || ""}</td>
 
-                <td>
+                    <td>${u.email || ""}</td>
 
-                    ${
-                        u.emailApproved
-                        ? '<button class="btn btn-success" disabled>Approved</button>'
-                        : `<button class="btn btn-primary approve-btn" data-id="${userDoc.id}">Approve</button>`
-                    }
+                    <td>Pending</td>
 
-                </td>
+                    <td>
+                        <button class="btn btn-primary approve-btn" data-id="${userDoc.id}">
+                            Approve
+                        </button>
+                    </td>
 
-            </tr>
-        `;
-
-    });
-
-    document.querySelectorAll('.approve-btn').forEach(btn=>{
-
-        btn.addEventListener('click', async ()=>{
-
-            const id = btn.getAttribute('data-id');
-
-            await updateDoc(doc(db,'users',id),{
-
-                emailApproved:true
-
-            });
-
-            alert('Participant approved successfully!');
-
-            loadUsers();
+                </tr>
+            `;
 
         });
 
-    });
+        // Approve buttons
+
+        document.querySelectorAll(".approve-btn").forEach(btn=>{
+
+            btn.addEventListener("click", async ()=>{
+
+                const id = btn.getAttribute("data-id");
+
+                await updateDoc(doc(db, "users", id),{
+
+                    emailApproved:true
+
+                });
+
+                // Reload table without alert
+
+                loadUsers();
+
+            });
+
+        });
+
+    }
+
+    catch(error){
+
+        console.error(error);
+
+        alert("Failed to load users");
+
+    }
 
 }
 
@@ -145,49 +153,83 @@ async function loadUsers(){
 
 async function loadSubmissions(){
 
-    const box = document.getElementById('submissions');
+    const box = document.getElementById("submissions");
 
-    box.innerHTML = '';
+    box.innerHTML = "";
 
-    const snapshot = await getDocs(collection(db,'submissions'));
+    try{
 
-    if(snapshot.empty){
+        const snapshot = await getDocs(collection(db, "submissions"));
 
-        box.innerHTML = '<p>No designs submitted yet.</p>';
+        if(snapshot.empty){
 
-        return;
+            box.innerHTML = "<p>No designs submitted yet.</p>";
+
+            return;
+
+        }
+
+        snapshot.forEach((designDoc)=>{
+
+            const d = designDoc.data();
+
+            box.innerHTML += `
+                <div class="design-card" style="margin-top:20px; background:#334155; padding:20px; border-radius:12px;">
+
+                    <h3>${d.participant || "Participant"}</h3>
+
+                    <p><b>Email:</b> ${d.email || ""}</p>
+
+                    <p><b>Prompt:</b> ${d.prompt || ""}</p>
+
+                    <p><b>Submitted:</b> ${d.submittedAt || ""}</p>
+
+                    <img src="${d.image}" style="width:300px; border-radius:10px;" alt="Submitted Design">
+
+                    <br><br>
+
+                    <a href="${d.image}" target="_blank">
+                        <button class="btn btn-secondary">View Design</button>
+                    </a>
+
+                    <button class="btn btn-danger delete-btn" data-id="${designDoc.id}" style="margin-left:10px;">
+                        Delete
+                    </button>
+
+                </div>
+            `;
+
+        });
+
+        // Delete buttons
+
+        document.querySelectorAll(".delete-btn").forEach(btn=>{
+
+            btn.addEventListener("click", async ()=>{
+
+                const id = btn.getAttribute("data-id");
+
+                const ok = confirm("Delete this submission?");
+
+                if(!ok) return;
+
+                await deleteDoc(doc(db, "submissions", id));
+
+                loadSubmissions();
+
+            });
+
+        });
 
     }
 
-    snapshot.forEach((designDoc)=>{
+    catch(error){
 
-        const d = designDoc.data();
+        console.error(error);
 
-        box.innerHTML += `
-            <div class="design-card">
+        alert("Failed to load submissions");
 
-                <h3>${d.participant || 'Participant'}</h3>
-
-                <p><strong>Email:</strong> ${d.email || ''}</p>
-
-                <p><strong>Prompt:</strong> ${d.prompt || ''}</p>
-
-                <p><strong>Submitted:</strong> ${d.submittedAt || ''}</p>
-
-                <img src="${d.image}" alt="Submitted Design">
-
-                <br><br>
-
-                <a href="${d.image}" target="_blank">
-
-                    <button class="btn btn-secondary">View Design</button>
-
-                </a>
-
-            </div>
-        `;
-
-    });
+    }
 
 }
 
@@ -202,7 +244,7 @@ async function refreshData(){
 
 }
 
-document.getElementById('refreshBtn').addEventListener('click', refreshData);
+document.getElementById("refreshBtn").addEventListener("click", refreshData);
 
 
 // ---------------- INITIAL LOAD ----------------
