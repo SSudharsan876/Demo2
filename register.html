@@ -1,17 +1,22 @@
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
 <head>
-    <title>Prompt Forge - Register</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prompt Forge | Participant Registration</title>
+  <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="auth-page">
 
-<div class="container">
+  <div class="auth-card">
 
 ```
-<h1>⚡ Prompt Forge</h1>
-<h2>Participant Registration</h2>
+<div class="auth-logo">⚡</div>
+
+<h1>Prompt Forge</h1>
+
+<p>Participant Registration</p>
 
 <input type="text" id="name" placeholder="Full Name" required>
 
@@ -23,72 +28,82 @@
 
 <input type="text" id="phone" placeholder="Phone Number" required>
 
-<button onclick="registerUser()">Register</button>
+<button class="btn btn-primary" onclick="registerUser()">Register Now</button>
 
-<p>Already registered? <a href="login.html">Login</a></p>
+<p class="auth-link">
+  Already registered?
+  <a href="login.html">Login Here</a>
+</p>
 ```
 
-</div>
+  </div>
 
-<script type="module">
-import { db } from "./firebase.js";
-import {
-  collection,
-  addDoc,
-  query,
-  where,
-  getDocs
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  <script type="module">
 
-window.registerUser = async function () {
+    import { db } from './firebase.js';
 
-  const fullName = document.getElementById("name").value.trim();
-  const college = document.getElementById("college").value.trim();
-  const department = document.getElementById("department").value.trim();
-  const email = document.getElementById("email").value.trim().toLowerCase();
-  const phone = document.getElementById("phone").value.trim();
+    import {
+      collection,
+      addDoc,
+      query,
+      where,
+      getDocs
+    } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
-  if (!fullName || !college || !department || !email || !phone) {
-    alert("Please fill all fields");
-    return;
-  }
+    window.registerUser = async function(){
 
-  try {
+      const fullName = document.getElementById('name').value.trim();
+      const college = document.getElementById('college').value.trim();
+      const department = document.getElementById('department').value.trim();
+      const email = document.getElementById('email').value.trim().toLowerCase();
+      const phone = document.getElementById('phone').value.trim();
 
-    const q = query(
-      collection(db, "users"),
-      where("email", "==", email)
-    );
+      if(!fullName || !college || !department || !email || !phone){
+        alert('Please fill all fields');
+        return;
+      }
 
-    const existing = await getDocs(q);
+      try{
 
-    if (!existing.empty) {
-      alert("Email already registered");
-      return;
-    }
+        const q = query(
+          collection(db,'users'),
+          where('email','==',email)
+        );
 
-    await addDoc(collection(db, "users"), {
-      fullName,
-      college,
-      department,
-      email,
-      phone,
-      emailApproved: false,
-      createdAt: new Date().toLocaleString()
-    });
+        const existing = await getDocs(q);
 
-    alert("Registration successful. Wait for admin approval.");
-    window.location.href = "login.html";
+        if(!existing.empty){
+          alert('Email already registered');
+          return;
+        }
 
-  } catch (error) {
+        await addDoc(collection(db,'users'),{
+          fullName,
+          college,
+          department,
+          email,
+          phone,
+          emailApproved:false,
+          registeredAt:new Date().toLocaleString()
+        });
 
-    console.error(error);
-    alert("Registration failed: " + error.message);
+        alert('Registration successful. Wait for admin approval.');
 
-  }
+        window.location.href = 'login.html';
 
-};
-</script>
+      }
+
+      catch(error){
+
+        console.error(error);
+
+        alert('Registration failed: ' + error.message);
+
+      }
+
+    };
+
+  </script>
 
 </body>
 </html>
