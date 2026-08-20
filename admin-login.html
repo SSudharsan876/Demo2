@@ -21,139 +21,280 @@
 
     <div class="auth-card">
 
-        <div class="auth-logo">⚡</div>
+        <!-- Logo -->
+        <div class="auth-logo">
+            ⚡
+        </div>
 
-        <h1>Prompt Forge</h1>
 
-        <p>Admin Login</p>
+        <!-- Heading -->
+        <h1>
+            Prompt Forge
+        </h1>
 
 
+        <p>
+            Admin Login
+        </p>
+
+
+        <!-- Admin Email -->
         <input
-            type="text"
-            id="username"
-            placeholder="Admin Username"
+            type="email"
+            id="adminEmail"
+            placeholder="Admin Email"
+            autocomplete="username"
+            required
         >
 
 
+        <!-- Admin Password -->
         <input
             type="password"
-            id="password"
-            placeholder="Admin Password"
+            id="adminPassword"
+            placeholder="Password"
+            autocomplete="current-password"
+            required
         >
 
 
+        <!-- Login -->
         <button
             class="btn btn-primary"
+            id="adminLoginBtn"
             onclick="adminLogin()"
         >
-            Login
+            Login as Admin
         </button>
 
 
-        <p id="msg"></p>
+        <!-- Message -->
+        <p id="adminMsg"></p>
+
+
+        <!-- Back -->
+        <p class="auth-link">
+
+            <a href="login.html">
+                ← Back to Participant Login
+            </a>
+
+        </p>
 
     </div>
 
 
-    <script>
+    <!-- ==========================================
+         FIREBASE ADMIN AUTHENTICATION
+    =========================================== -->
 
-        async function adminLogin() {
+    <script type="module">
 
-            const username =
-                document.getElementById("username").value.trim();
+        import {
+            auth
+        }
+        from "./firebase.js";
+
+
+        import {
+            signInWithEmailAndPassword
+        }
+        from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+
+        // ==========================================
+        // ADMIN LOGIN
+        // ==========================================
+
+        window.adminLogin = async function () {
+
+            const email =
+                document
+                    .getElementById("adminEmail")
+                    .value
+                    .trim()
+                    .toLowerCase();
+
 
             const password =
-                document.getElementById("password").value;
+                document
+                    .getElementById("adminPassword")
+                    .value;
 
-            const msg =
-                document.getElementById("msg");
+
+            const button =
+                document.getElementById(
+                    "adminLoginBtn"
+                );
 
 
-            if (!username || !password) {
+            const message =
+                document.getElementById(
+                    "adminMsg"
+                );
 
-                msg.innerText =
-                    "Enter username and password";
+
+            // Empty fields
+
+            if (!email || !password) {
+
+                message.innerText =
+                    "Enter admin email and password";
 
                 return;
             }
 
 
-            msg.innerText =
-                "Connecting to server...";
+            button.disabled = true;
+
+            button.innerText =
+                "Signing in...";
+
+
+            message.innerText = "";
 
 
             try {
 
-                const response = await fetch(
-                    "/admin-login",
-                    {
-                        method: "POST",
+                // Firebase Authentication
 
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
+                const userCredential =
+                    await signInWithEmailAndPassword(
+                        auth,
+                        email,
+                        password
+                    );
 
-                        body: JSON.stringify({
-                            username: username,
-                            password: password
-                        })
-                    }
+
+                const user =
+                    userCredential.user;
+
+
+                // ==========================================
+                // CHECK ADMIN EMAIL
+                // ==========================================
+
+                if (
+                    user.email !==
+                    "admin@aiprompt.com"
+                ) {
+
+                    await auth.signOut();
+
+
+                    message.innerText =
+                        "This account is not authorized as admin";
+
+                    return;
+                }
+
+
+                // ==========================================
+                // ADMIN LOGIN SUCCESS
+                // ==========================================
+
+                localStorage.setItem(
+                    "adminLoggedIn",
+                    "true"
                 );
 
 
-                if (!response.ok) {
-
-                    throw new Error(
-                        "Server returned HTTP " +
-                        response.status
-                    );
-
-                }
+                localStorage.setItem(
+                    "adminEmail",
+                    user.email
+                );
 
 
-                const data =
-                    await response.json();
-
-
-                if (data.success) {
-
-                    localStorage.setItem(
-                        "admin",
-                        "true"
-                    );
-
-                    window.location.href =
-                        "admin.html";
-
-                } else {
-
-                    msg.innerText =
-                        data.message ||
-                        "Invalid admin username or password";
-
-                }
+                window.location.href =
+                    "admin.html";
 
             }
+
 
             catch (error) {
 
-                console.error(error);
+                console.error(
+                    "Admin login error:",
+                    error
+                );
 
-                msg.innerText =
-                    "Server connection failed. Make sure server.js is running.";
+
+                // Firebase error messages
+
+                if (
+                    error.code ===
+                    "auth/invalid-credential"
+                ) {
+
+                    message.innerText =
+                        "Invalid admin email or password";
+
+                }
+
+                else if (
+                    error.code ===
+                    "auth/user-not-found"
+                ) {
+
+                    message.innerText =
+                        "Admin account not found";
+
+                }
+
+                else if (
+                    error.code ===
+                    "auth/wrong-password"
+                ) {
+
+                    message.innerText =
+                        "Incorrect password";
+
+                }
+
+                else if (
+                    error.code ===
+                    "auth/too-many-requests"
+                ) {
+
+                    message.innerText =
+                        "Too many attempts. Try again later";
+
+                }
+
+                else {
+
+                    message.innerText =
+                        "Admin login failed: " +
+                        error.message;
+
+                }
 
             }
 
-        }
+
+            finally {
+
+                button.disabled = false;
+
+                button.innerText =
+                    "Login as Admin";
+
+            }
+
+        };
 
 
-        // Press Enter to login
+        // ==========================================
+        // ENTER KEY LOGIN
+        // ==========================================
 
         document.addEventListener(
             "keydown",
-            function(event) {
+            function (event) {
 
-                if (event.key === "Enter") {
+                if (
+                    event.key === "Enter"
+                ) {
 
                     adminLogin();
 
