@@ -1,17 +1,59 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { getStorage } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+import {
+    initializeApp
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+
+import {
+    getFirestore
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+
+import {
+    getAuth
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBbMJrfjqjk_9mRtoMi1lEQoTbRkeQyYlE",
-  authDomain: "prompt-forge-5da75.firebaseapp.com",
-  projectId: "prompt-forge-5da75",
-  storageBucket: "prompt-forge-5da75.appspot.com",
-  messagingSenderId: "1037395691833",
-  appId: "1:1037395691833:web:4f1d3e110fec1df9e280e8",
-  measurementId: "G-GRTTJVWMJ3"
-};
-const app = initializeApp(firebaseConfig);
 
-export const db = getFirestore(app);
-export const storage = getStorage(app);
+    apiKey: "YOUR_API_KEY",
+
+    authDomain:
+        "YOUR_PROJECT_ID.firebaseapp.com",
+
+    projectId:
+        "YOUR_PROJECT_ID",
+
+    storageBucket:
+        "YOUR_PROJECT_ID.firebasestorage.app",
+
+    messagingSenderId:
+        "YOUR_MESSAGING_SENDER_ID",
+
+    appId:
+        "YOUR_APP_ID"
+
+};
+
+
+const app =
+    initializeApp(
+        firebaseConfig
+    );
+
+
+const db =
+    getFirestore(app);
+
+
+const auth =
+    getAuth(app);
+
+
+export {
+    app,
+    db,
+    auth
+};
