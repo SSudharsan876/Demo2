@@ -2,139 +2,115 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Prompt Forge | Participant Login</title>
 
     <link rel="stylesheet" href="style.css">
+
 </head>
+
 
 <body class="auth-page">
 
     <div class="auth-card">
 
         <!-- Logo -->
-        <div class="auth-logo">⚡</div>
+        <div class="auth-logo">
+            ⚡
+        </div>
+
 
         <!-- Heading -->
-        <h1>Prompt Forge</h1>
+        <h1>
+            Prompt Forge
+        </h1>
 
-        <p>Participant Login</p>
+
+        <p>
+            Participant Login
+        </p>
 
 
-        <!-- =====================================
-             PARTICIPANT LOGIN
-        ====================================== -->
-
+        <!-- Participant Email -->
         <input
             type="email"
             id="email"
             placeholder="Registered Email Address"
+            autocomplete="email"
             required
         >
 
+
+        <!-- Login Button -->
         <button
             class="btn btn-primary"
-            onclick="login()">
+            id="loginBtn"
+            onclick="login()"
+        >
             Enter Competition
         </button>
 
 
-        <!-- =====================================
-             REGISTRATION LINK
-        ====================================== -->
-
+        <!-- Registration -->
         <p class="auth-link">
+
             Not registered?
-            <a href="register.html">Register Here</a>
+
+            <a href="register.html">
+                Register Here
+            </a>
+
         </p>
-
-
-        <!-- =====================================
-             HIDDEN ADMIN LOGIN
-             
-             This is NOT visible normally.
-             Press Ctrl + Shift + A
-        ====================================== -->
-
-        <div
-            id="adminBox"
-            style="
-                display: none;
-                margin-top: 25px;
-                padding-top: 20px;
-                border-top: 1px solid rgba(255,255,255,0.15);
-            "
-        >
-
-            <h3>🔐 Admin Login</h3>
-
-            <input
-                type="text"
-                id="adminUsername"
-                placeholder="Admin Username"
-                autocomplete="username"
-            >
-
-            <input
-                type="password"
-                id="adminPassword"
-                placeholder="Admin Password"
-                autocomplete="current-password"
-            >
-
-            <button
-                class="btn btn-primary"
-                onclick="adminLogin()">
-                Login as Admin
-            </button>
-
-            <p
-                id="adminMsg"
-                style="margin-top: 10px;">
-            </p>
-
-        </div>
 
     </div>
 
 
     <!-- ==========================================
-         FIREBASE + LOGIN JAVASCRIPT
+         FIREBASE PARTICIPANT LOGIN
     =========================================== -->
 
     <script type="module">
 
-        // =====================================
-        // FIREBASE
-        // =====================================
-
         import { db } from "./firebase.js";
+
 
         import {
             collection,
             query,
             where,
             getDocs
-        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        }
+        from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 
-        // =====================================
+        // ==========================================
         // PARTICIPANT LOGIN
-        // =====================================
+        // ==========================================
 
         window.login = async function () {
 
+            const emailInput =
+                document.getElementById("email");
+
+
+            const loginBtn =
+                document.getElementById("loginBtn");
+
+
             const email =
-                document
-                    .getElementById("email")
-                    .value
+                emailInput.value
                     .trim()
                     .toLowerCase();
 
 
-            // Check email
+            // Empty email
 
             if (!email) {
 
@@ -142,17 +118,35 @@
                     "Enter your registered email"
                 );
 
+                emailInput.focus();
+
                 return;
             }
 
 
+            loginBtn.disabled = true;
+
+            loginBtn.innerText =
+                "Checking...";
+
+
             try {
 
-                // Search Firebase users collection
+                // Find participant
 
                 const q = query(
-                    collection(db, "users"),
-                    where("email", "==", email)
+
+                    collection(
+                        db,
+                        "users"
+                    ),
+
+                    where(
+                        "email",
+                        "==",
+                        email
+                    )
+
                 );
 
 
@@ -160,9 +154,7 @@
                     await getDocs(q);
 
 
-                // =====================================
-                // EMAIL NOT REGISTERED
-                // =====================================
+                // Not registered
 
                 if (snapshot.empty) {
 
@@ -174,19 +166,17 @@
                 }
 
 
-                // =====================================
-                // GET USER
-                // =====================================
+                // Get participant data
 
                 const user =
                     snapshot.docs[0].data();
 
 
-                // =====================================
-                // CHECK ADMIN APPROVAL
-                // =====================================
+                // Check approval
 
-                if (!user.emailApproved) {
+                if (
+                    user.emailApproved !== true
+                ) {
 
                     alert(
                         "Waiting for admin approval"
@@ -196,25 +186,21 @@
                 }
 
 
-                // =====================================
-                // SAVE PARTICIPANT DETAILS
-                // =====================================
+                // Save participant
 
                 localStorage.setItem(
                     "currentUser",
-                    user.fullName
+                    user.fullName || ""
                 );
 
 
                 localStorage.setItem(
                     "currentEmail",
-                    user.email
+                    user.email || email
                 );
 
 
-                // =====================================
-                // ENTER COMPETITION
-                // =====================================
+                // Enter competition
 
                 window.location.href =
                     "battle.html";
@@ -237,189 +223,49 @@
 
             }
 
+
+            finally {
+
+                loginBtn.disabled = false;
+
+                loginBtn.innerText =
+                    "Enter Competition";
+
+            }
+
         };
 
 
-        // =====================================
-        // HIDDEN ADMIN LOGIN
-        // =====================================
+        // ==========================================
+        // HIDDEN ADMIN SHORTCUT
         //
-        // Shortcut:
-        // Ctrl + Shift + A
-        //
-        // The admin option remains invisible
-        // until this shortcut is pressed.
-        // =====================================
+        // CTRL + SHIFT + A
+        // ==========================================
 
         document.addEventListener(
             "keydown",
             function (event) {
 
                 if (
+
                     event.ctrlKey &&
+
                     event.shiftKey &&
+
                     event.key.toLowerCase() === "a"
+
                 ) {
 
-                    const adminBox =
-                        document.getElementById(
-                            "adminBox"
-                        );
+                    event.preventDefault();
 
 
-                    // Show admin login
-
-                    adminBox.style.display =
-                        "block";
-
-
-                    // Focus username
-
-                    document
-                        .getElementById(
-                            "adminUsername"
-                        )
-                        .focus();
+                    window.location.href =
+                        "admin-login.html";
 
                 }
 
             }
         );
-
-
-        // =====================================
-        // ADMIN LOGIN
-        // =====================================
-
-        window.adminLogin = async function () {
-
-            const username =
-                document
-                    .getElementById(
-                        "adminUsername"
-                    )
-                    .value
-                    .trim();
-
-
-            const password =
-                document
-                    .getElementById(
-                        "adminPassword"
-                    )
-                    .value;
-
-
-            const adminMsg =
-                document.getElementById(
-                    "adminMsg"
-                );
-
-
-            // =====================================
-            // VALIDATE INPUT
-            // =====================================
-
-            if (!username || !password) {
-
-                adminMsg.innerText =
-                    "Enter username and password";
-
-                return;
-            }
-
-
-            adminMsg.innerText =
-                "Checking login...";
-
-
-            try {
-
-                // =====================================
-                // SEND LOGIN TO SERVER.JS
-                // =====================================
-
-                const response =
-                    await fetch(
-                        "/admin-login",
-                        {
-
-                            method: "POST",
-
-                            headers: {
-                                "Content-Type":
-                                    "application/json"
-                            },
-
-                            body: JSON.stringify({
-
-                                username:
-                                    username,
-
-                                password:
-                                    password
-
-                            })
-
-                        }
-                    );
-
-
-                const data =
-                    await response.json();
-
-
-                // =====================================
-                // SUCCESS
-                // =====================================
-
-                if (data.success) {
-
-                    // Save admin session
-
-                    localStorage.setItem(
-                        "admin",
-                        "true"
-                    );
-
-
-                    // Open admin dashboard
-
-                    window.location.href =
-                        "admin.html";
-
-                }
-
-
-                // =====================================
-                // FAILED LOGIN
-                // =====================================
-
-                else {
-
-                    adminMsg.innerText =
-                        data.message ||
-                        "Invalid admin username or password";
-
-                }
-
-            }
-
-
-            catch (error) {
-
-                console.error(
-                    "Admin login error:",
-                    error
-                );
-
-
-                adminMsg.innerText =
-                    "Unable to connect to server";
-
-            }
-
-        };
 
     </script>
 
