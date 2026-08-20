@@ -1,257 +1,1065 @@
 <!DOCTYPE html>
-
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
     <title>Prompt Forge | Admin Dashboard</title>
+
     <link rel="stylesheet" href="style.css">
+
 </head>
+
+
 <body>
 
 <div class="container">
 
-```
-<div class="workspace-header">
 
-    <div>
-        <span class="badge">Admin Panel</span>
-        <h1>Prompt Forge Dashboard</h1>
-        <p>Approve participants and review submitted AI designs.</p>
+    <!-- ==========================================
+         HEADER
+    =========================================== -->
+
+    <div class="workspace-header">
+
+        <div>
+
+            <span class="badge">
+                Admin Panel
+            </span>
+
+            <h1>
+                Prompt Forge Dashboard
+            </h1>
+
+            <p>
+                Approve participants and review
+                submitted AI designs.
+            </p>
+
+            <p id="adminEmail"
+               style="font-size:14px;">
+            </p>
+
+        </div>
+
+
+        <div style="display:flex; gap:10px;">
+
+            <button
+                id="refreshBtn"
+                class="btn btn-primary"
+            >
+                Refresh Data
+            </button>
+
+            <button
+                id="logoutBtn"
+                class="btn btn-danger"
+            >
+                Logout
+            </button>
+
+        </div>
+
     </div>
 
-    <button id="refreshBtn" class="btn btn-primary">Refresh Data</button>
 
-</div>
-
-<hr>
-
-<h2>Participant Approval</h2>
-
-<div class="table-wrapper">
-
-    <table>
-
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>College</th>
-                <th>Department</th>
-                <th>Email</th>
-                <th>Status</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-
-        <tbody id="table"></tbody>
-
-    </table>
-
-</div>
-
-<hr>
-
-<h2>Submitted Designs</h2>
-
-<div id="submissions"></div>
-```
-
-</div>
-
-<script type="module">
-
-import { db } from "./firebase.js";
-
-import {
-    collection,
-    getDocs,
-    doc,
-    updateDoc,
-    deleteDoc
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    <hr>
 
 
-// ---------------- LOAD USERS ----------------
+    <!-- ==========================================
+         PARTICIPANT APPROVAL
+    =========================================== -->
 
-async function loadUsers(){
+    <h2>
+        Participant Approval
+    </h2>
 
-    const tbody = document.getElementById("table");
 
-    tbody.innerHTML = "";
+    <div class="table-wrapper">
 
-    try{
+        <table>
 
-        const snapshot = await getDocs(collection(db, "users"));
+            <thead>
 
-        snapshot.forEach((userDoc)=>{
-
-            const u = userDoc.data();
-
-            // Show only pending participants
-            if(u.emailApproved) return;
-
-            tbody.innerHTML += `
                 <tr>
 
-                    <td>${u.fullName || ""}</td>
+                    <th>
+                        Name
+                    </th>
 
-                    <td>${u.college || ""}</td>
+                    <th>
+                        College
+                    </th>
 
-                    <td>${u.department || ""}</td>
+                    <th>
+                        Department
+                    </th>
 
-                    <td>${u.email || ""}</td>
+                    <th>
+                        Email
+                    </th>
 
-                    <td>Pending</td>
+                    <th>
+                        Status
+                    </th>
 
-                    <td>
-                        <button class="btn btn-primary approve-btn" data-id="${userDoc.id}">
-                            Approve
-                        </button>
+                    <th>
+                        Action
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody id="table">
+
+                <tr>
+
+                    <td colspan="6">
+                        Loading participants...
                     </td>
 
                 </tr>
-            `;
 
-        });
+            </tbody>
 
-        // Approve buttons
+        </table>
 
-        document.querySelectorAll(".approve-btn").forEach(btn=>{
+    </div>
 
-            btn.addEventListener("click", async ()=>{
 
-                const id = btn.getAttribute("data-id");
+    <hr>
 
-                await updateDoc(doc(db, "users", id),{
 
-                    emailApproved:true
+    <!-- ==========================================
+         SUBMITTED DESIGNS
+    =========================================== -->
 
-                });
+    <h2>
+        Submitted Designs
+    </h2>
 
-                // Reload table without alert
 
-                loadUsers();
+    <div id="submissions">
 
-            });
+        <p>
+            Loading submissions...
+        </p>
 
-        });
+    </div>
 
+
+</div>
+
+
+<!-- ==========================================
+     FIREBASE
+=========================================== -->
+
+<script type="module">
+
+
+    // ==========================================
+    // IMPORT FIREBASE
+    // ==========================================
+
+    import {
+        auth,
+        db
+    } from "./firebase.js";
+
+
+    import {
+        onAuthStateChanged,
+        signOut
     }
+    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-    catch(error){
 
-        console.error(error);
-
-        alert("Failed to load users");
-
+    import {
+        collection,
+        getDocs,
+        doc,
+        updateDoc,
+        deleteDoc
     }
+    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-}
+
+    // ==========================================
+    // ADMIN EMAIL
+    // ==========================================
+
+    const ADMIN_EMAIL =
+        "admin@aiprompt.com";
 
 
-// ---------------- LOAD SUBMISSIONS ----------------
+    // ==========================================
+    // PAGE ELEMENTS
+    // ==========================================
 
-async function loadSubmissions(){
+    const table =
+        document.getElementById("table");
 
-    const box = document.getElementById("submissions");
 
-    box.innerHTML = "";
+    const submissions =
+        document.getElementById(
+            "submissions"
+        );
 
-    try{
 
-        const snapshot = await getDocs(collection(db, "submissions"));
+    const refreshBtn =
+        document.getElementById(
+            "refreshBtn"
+        );
 
-        if(snapshot.empty){
 
-            box.innerHTML = "<p>No designs submitted yet.</p>";
+    const logoutBtn =
+        document.getElementById(
+            "logoutBtn"
+        );
 
-            return;
+
+    const adminEmail =
+        document.getElementById(
+            "adminEmail"
+        );
+
+
+    // ==========================================
+    // AUTHENTICATION CHECK
+    // ==========================================
+
+    onAuthStateChanged(
+        auth,
+        async function(user) {
+
+
+            // No Firebase user
+
+            if (!user) {
+
+                window.location.href =
+                    "admin-login.html";
+
+                return;
+
+            }
+
+
+            // Check admin email
+
+            if (
+                user.email !==
+                ADMIN_EMAIL
+            ) {
+
+                alert(
+                    "You are not authorized to access the admin dashboard."
+                );
+
+
+                await signOut(auth);
+
+
+                window.location.href =
+                    "admin-login.html";
+
+                return;
+
+            }
+
+
+            // Show admin email
+
+            adminEmail.innerText =
+                "Logged in as: " +
+                user.email;
+
+
+            // Load dashboard
+
+            await refreshData();
+
+        }
+    );
+
+
+    // ==========================================
+    // LOAD USERS
+    // ==========================================
+
+    async function loadUsers() {
+
+
+        table.innerHTML = `
+
+            <tr>
+
+                <td colspan="6">
+                    Loading participants...
+                </td>
+
+            </tr>
+
+        `;
+
+
+        try {
+
+
+            const snapshot =
+                await getDocs(
+                    collection(
+                        db,
+                        "users"
+                    )
+                );
+
+
+            table.innerHTML = "";
+
+
+            // No users
+
+            if (
+                snapshot.empty
+            ) {
+
+                table.innerHTML = `
+
+                    <tr>
+
+                        <td colspan="6">
+
+                            No participants
+                            registered yet.
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+                return;
+
+            }
+
+
+            snapshot.forEach(
+                function(userDoc) {
+
+
+                    const u =
+                        userDoc.data();
+
+
+                    const approved =
+                        u.emailApproved === true;
+
+
+                    const row =
+                        document.createElement(
+                            "tr"
+                        );
+
+
+                    row.innerHTML = `
+
+                        <td>
+                            ${escapeHTML(
+                                u.fullName || ""
+                            )}
+                        </td>
+
+
+                        <td>
+                            ${escapeHTML(
+                                u.college || ""
+                            )}
+                        </td>
+
+
+                        <td>
+                            ${escapeHTML(
+                                u.department || ""
+                            )}
+                        </td>
+
+
+                        <td>
+                            ${escapeHTML(
+                                u.email || ""
+                            )}
+                        </td>
+
+
+                        <td>
+
+                            ${
+                                approved
+                                ? "Approved"
+                                : "Pending"
+                            }
+
+                        </td>
+
+
+                        <td>
+
+                            ${
+                                approved
+
+                                ?
+
+                                `
+                                <button
+                                    class="btn btn-secondary"
+                                    disabled
+                                >
+                                    Approved
+                                </button>
+                                `
+
+                                :
+
+                                `
+                                <button
+                                    class="btn btn-primary approve-btn"
+                                    data-id="${userDoc.id}"
+                                >
+                                    Approve
+                                </button>
+                                `
+                            }
+
+                        </td>
+
+                    `;
+
+
+                    table.appendChild(
+                        row
+                    );
+
+                }
+            );
+
+
+            // ==================================
+            // APPROVE BUTTONS
+            // ==================================
+
+            document
+                .querySelectorAll(
+                    ".approve-btn"
+                )
+                .forEach(
+                    function(button) {
+
+
+                        button.addEventListener(
+                            "click",
+                            async function() {
+
+
+                                const id =
+                                    button.getAttribute(
+                                        "data-id"
+                                    );
+
+
+                                button.disabled =
+                                    true;
+
+
+                                button.innerText =
+                                    "Approving...";
+
+
+                                try {
+
+
+                                    await updateDoc(
+
+                                        doc(
+                                            db,
+                                            "users",
+                                            id
+                                        ),
+
+                                        {
+                                            emailApproved:
+                                                true
+                                        }
+
+                                    );
+
+
+                                    await loadUsers();
+
+
+                                }
+
+                                catch(error) {
+
+
+                                    console.error(
+                                        error
+                                    );
+
+
+                                    alert(
+                                        "Failed to approve participant."
+                                    );
+
+
+                                    button.disabled =
+                                        false;
+
+
+                                    button.innerText =
+                                        "Approve";
+
+                                }
+
+                            }
+                        );
+
+                    }
+                );
 
         }
 
-        snapshot.forEach((designDoc)=>{
 
-            const d = designDoc.data();
+        catch(error) {
 
-            box.innerHTML += `
-                <div class="design-card" style="margin-top:20px; background:#334155; padding:20px; border-radius:12px;">
 
-                    <h3>${d.participant || "Participant"}</h3>
+            console.error(
+                "Users error:",
+                error
+            );
 
-                    <p><b>Email:</b> ${d.email || ""}</p>
 
-                    <p><b>Prompt:</b> ${d.prompt || ""}</p>
+            table.innerHTML = `
 
-                    <p><b>Submitted:</b> ${d.submittedAt || ""}</p>
+                <tr>
 
-                    <img src="${d.image}" style="width:300px; border-radius:10px;" alt="Submitted Design">
+                    <td colspan="6">
+
+                        Failed to load participants.
+
+                        <br><br>
+
+                        ${escapeHTML(
+                            error.message
+                        )}
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        }
+
+    }
+
+
+    // ==========================================
+    // LOAD SUBMISSIONS
+    // ==========================================
+
+    async function loadSubmissions() {
+
+
+        submissions.innerHTML = `
+
+            <p>
+                Loading submitted designs...
+            </p>
+
+        `;
+
+
+        try {
+
+
+            const snapshot =
+                await getDocs(
+                    collection(
+                        db,
+                        "submissions"
+                    )
+                );
+
+
+            submissions.innerHTML = "";
+
+
+            // No submissions
+
+            if (
+                snapshot.empty
+            ) {
+
+                submissions.innerHTML = `
+
+                    <p>
+                        No designs submitted yet.
+                    </p>
+
+                `;
+
+                return;
+
+            }
+
+
+            snapshot.forEach(
+                function(designDoc) {
+
+
+                    const d =
+                        designDoc.data();
+
+
+                    const card =
+                        document.createElement(
+                            "div"
+                        );
+
+
+                    card.className =
+                        "design-card";
+
+
+                    card.style.cssText = `
+
+                        margin-top:20px;
+
+                        background:#334155;
+
+                        padding:20px;
+
+                        border-radius:12px;
+
+                    `;
+
+
+                    card.innerHTML = `
+
+                        <h3>
+
+                            ${escapeHTML(
+                                d.participant ||
+                                "Participant"
+                            )}
+
+                        </h3>
+
+
+                        <p>
+
+                            <b>Email:</b>
+
+                            ${escapeHTML(
+                                d.email || ""
+                            )}
+
+                        </p>
+
+
+                        <p>
+
+                            <b>Prompt:</b>
+
+                            ${escapeHTML(
+                                d.prompt || ""
+                            )}
+
+                        </p>
+
+
+                        <p>
+
+                            <b>Submitted:</b>
+
+                            ${escapeHTML(
+                                d.submittedAt || ""
+                            )}
+
+                        </p>
+
+
+                        <img
+
+                            src="${escapeAttribute(
+                                d.image || ""
+                            )}"
+
+                            style="
+                                width:300px;
+                                max-width:100%;
+                                border-radius:10px;
+                                display:block;
+                                margin-top:15px;
+                            "
+
+                            alt="Submitted Design"
+
+                        >
+
+
+                        <br>
+
+
+                        <a
+                            href="${escapeAttribute(
+                                d.image || ""
+                            )}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+
+                            <button
+                                class="btn btn-secondary"
+                            >
+                                View Design
+                            </button>
+
+                        </a>
+
+
+                        <button
+
+                            class="btn btn-danger delete-btn"
+
+                            data-id="${designDoc.id}"
+
+                            style="margin-left:10px;"
+
+                        >
+
+                            Delete
+
+                        </button>
+
+                    `;
+
+
+                    submissions.appendChild(
+                        card
+                    );
+
+                }
+            );
+
+
+            // ==================================
+            // DELETE BUTTONS
+            // ==================================
+
+            document
+                .querySelectorAll(
+                    ".delete-btn"
+                )
+                .forEach(
+                    function(button) {
+
+
+                        button.addEventListener(
+                            "click",
+                            async function() {
+
+
+                                const id =
+                                    button.getAttribute(
+                                        "data-id"
+                                    );
+
+
+                                const ok =
+                                    confirm(
+                                        "Delete this submission?"
+                                    );
+
+
+                                if (!ok) {
+
+                                    return;
+
+                                }
+
+
+                                button.disabled =
+                                    true;
+
+
+                                button.innerText =
+                                    "Deleting...";
+
+
+                                try {
+
+
+                                    await deleteDoc(
+
+                                        doc(
+                                            db,
+                                            "submissions",
+                                            id
+                                        )
+
+                                    );
+
+
+                                    await loadSubmissions();
+
+
+                                }
+
+                                catch(error) {
+
+
+                                    console.error(
+                                        error
+                                    );
+
+
+                                    alert(
+                                        "Failed to delete submission."
+                                    );
+
+
+                                    button.disabled =
+                                        false;
+
+
+                                    button.innerText =
+                                        "Delete";
+
+                                }
+
+                            }
+                        );
+
+                    }
+                );
+
+        }
+
+
+        catch(error) {
+
+
+            console.error(
+                "Submissions error:",
+                error
+            );
+
+
+            submissions.innerHTML = `
+
+                <p>
+
+                    Failed to load submissions.
 
                     <br><br>
 
-                    <a href="${d.image}" target="_blank">
-                        <button class="btn btn-secondary">View Design</button>
-                    </a>
+                    ${escapeHTML(
+                        error.message
+                    )}
 
-                    <button class="btn btn-danger delete-btn" data-id="${designDoc.id}" style="margin-left:10px;">
-                        Delete
-                    </button>
+                </p>
 
-                </div>
             `;
 
-        });
-
-        // Delete buttons
-
-        document.querySelectorAll(".delete-btn").forEach(btn=>{
-
-            btn.addEventListener("click", async ()=>{
-
-                const id = btn.getAttribute("data-id");
-
-                const ok = confirm("Delete this submission?");
-
-                if(!ok) return;
-
-                await deleteDoc(doc(db, "submissions", id));
-
-                loadSubmissions();
-
-            });
-
-        });
+        }
 
     }
 
-    catch(error){
 
-        console.error(error);
+    // ==========================================
+    // REFRESH DATA
+    // ==========================================
 
-        alert("Failed to load submissions");
+    async function refreshData() {
+
+
+        refreshBtn.disabled =
+            true;
+
+
+        refreshBtn.innerText =
+            "Refreshing...";
+
+
+        try {
+
+
+            await Promise.all([
+
+                loadUsers(),
+
+                loadSubmissions()
+
+            ]);
+
+        }
+
+        finally {
+
+
+            refreshBtn.disabled =
+                false;
+
+
+            refreshBtn.innerText =
+                "Refresh Data";
+
+        }
 
     }
 
-}
+
+    // ==========================================
+    // REFRESH BUTTON
+    // ==========================================
+
+    refreshBtn.addEventListener(
+        "click",
+        refreshData
+    );
 
 
-// ---------------- REFRESH ----------------
+    // ==========================================
+    // LOGOUT
+    // ==========================================
 
-async function refreshData(){
-
-    await loadUsers();
-
-    await loadSubmissions();
-
-}
-
-document.getElementById("refreshBtn").addEventListener("click", refreshData);
+    logoutBtn.addEventListener(
+        "click",
+        async function() {
 
 
-// ---------------- INITIAL LOAD ----------------
+            const ok =
+                confirm(
+                    "Logout from admin dashboard?"
+                );
 
-refreshData();
+
+            if (!ok) {
+
+                return;
+
+            }
+
+
+            try {
+
+
+                await signOut(auth);
+
+
+                localStorage.removeItem(
+                    "adminLoggedIn"
+                );
+
+
+                localStorage.removeItem(
+                    "adminEmail"
+                );
+
+
+                window.location.href =
+                    "admin-login.html";
+
+            }
+
+
+            catch(error) {
+
+
+                console.error(
+                    "Logout error:",
+                    error
+                );
+
+
+                alert(
+                    "Logout failed."
+                );
+
+            }
+
+        }
+    );
+
+
+    // ==========================================
+    // SECURITY HELPERS
+    // ==========================================
+
+    function escapeHTML(value) {
+
+        return String(value)
+
+            .replace(
+                /&/g,
+                "&amp;"
+            )
+
+            .replace(
+                /</g,
+                "&lt;"
+            )
+
+            .replace(
+                />/g,
+                "&gt;"
+            )
+
+            .replace(
+                /"/g,
+                "&quot;"
+            )
+
+            .replace(
+                /'/g,
+                "&#039;"
+            );
+
+    }
+
+
+    function escapeAttribute(value) {
+
+        return String(value)
+
+            .replace(
+                /"/g,
+                "&quot;"
+            )
+
+            .replace(
+                /'/g,
+                "&#039;"
+            );
+
+    }
+
 
 </script>
 
 </body>
+
 </html>
