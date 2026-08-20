@@ -1,274 +1,195 @@
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
 
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
 
-    <title>Prompt Forge | Admin Dashboard</title>
+<title>Prompt Forge | Admin Dashboard</title>
 
-    <link
-        rel="stylesheet"
-        href="style.css"
-    >
+<link rel="stylesheet" href="style.css">
 
 </head>
 
-
 <body>
-
 
 <div class="container">
 
+<!-- ==========================================
+     HEADER
+=========================================== -->
 
-    <!-- ==========================================
-         HEADER
-    =========================================== -->
+<div class="workspace-header">
 
-    <div class="workspace-header">
+    <div>
 
-        <div>
+        <span class="badge">
+            Admin Panel
+        </span>
 
-            <span class="badge">
-                Admin Panel
-            </span>
-
-            <h1>
-                Prompt Forge Dashboard
-            </h1>
-
-            <p>
-                Approve participants and review
-                submitted AI designs.
-            </p>
-
-            <p
-                id="adminEmail"
-                style="font-size:14px;"
-            >
-                Checking authentication...
-            </p>
-
-        </div>
-
-
-        <div
-            style="
-                display:flex;
-                gap:10px;
-                flex-wrap:wrap;
-            "
-        >
-
-            <button
-                id="refreshBtn"
-                class="btn btn-primary"
-            >
-                Refresh Data
-            </button>
-
-
-            <button
-                id="logoutBtn"
-                class="btn btn-danger"
-            >
-                Logout
-            </button>
-
-        </div>
-
-    </div>
-
-
-    <hr>
-
-
-    <!-- ==========================================
-         PARTICIPANTS
-    =========================================== -->
-
-    <h2>
-        Participant Approval
-    </h2>
-
-
-    <div class="table-wrapper">
-
-        <table>
-
-            <thead>
-
-                <tr>
-
-                    <th>Name</th>
-
-                    <th>College</th>
-
-                    <th>Department</th>
-
-                    <th>Email</th>
-
-                    <th>Status</th>
-
-                    <th>Action</th>
-
-                </tr>
-
-            </thead>
-
-
-            <tbody id="table">
-
-                <tr>
-
-                    <td colspan="6">
-                        Checking Firebase...
-                    </td>
-
-                </tr>
-
-            </tbody>
-
-        </table>
-
-    </div>
-
-
-    <hr>
-
-
-    <!-- ==========================================
-         SUBMITTED DESIGNS
-    =========================================== -->
-
-    <h2>
-        Submitted Designs
-    </h2>
-
-
-    <div id="submissions">
+        <h1>
+            Prompt Forge Dashboard
+        </h1>
 
         <p>
-            Checking Firebase...
+            Approve participants and review
+            submitted AI designs.
+        </p>
+
+        <p id="adminEmail"
+           style="font-size:14px;">
         </p>
 
     </div>
 
 
+    <div style="display:flex; gap:10px;">
+
+        <button
+            id="refreshBtn"
+            class="btn btn-primary"
+        >
+            Refresh Data
+        </button>
+
+        <button
+            id="logoutBtn"
+            class="btn btn-danger"
+        >
+            Logout
+        </button>
+
+    </div>
+
 </div>
 
 
+<hr>
+
 
 <!-- ==========================================
-     FIREBASE + DASHBOARD
+     PARTICIPANT APPROVAL
 =========================================== -->
 
-<script type="module">
-
-    console.log("Dashboard JavaScript started.");
-
-
-
-    // ==========================================
-    // FIREBASE IMPORT
-    // ==========================================
-
-    let auth;
-    let db;
-
-    try {
-
-        const firebase =
-            await import("./firebase.js");
-
-        auth = firebase.auth;
-        db = firebase.db;
-
-        console.log(
-            "Firebase module loaded successfully."
-        );
-
-    }
-
-    catch(error) {
-
-        console.error(
-            "Firebase import failed:",
-            error
-        );
+<h2>
+    Participant Approval
+</h2>
 
 
-        document.getElementById(
-            "table"
-        ).innerHTML = `
+<div class="table-wrapper">
+
+    <table>
+
+        <thead>
+
+            <tr>
+
+                <th>
+                    Name
+                </th>
+
+                <th>
+                    College
+                </th>
+
+                <th>
+                    Department
+                </th>
+
+                <th>
+                    Email
+                </th>
+
+                <th>
+                    Status
+                </th>
+
+                <th>
+                    Action
+                </th>
+
+            </tr>
+
+        </thead>
+
+
+        <tbody id="table">
 
             <tr>
 
                 <td colspan="6">
-
-                    <strong>
-                        Firebase failed to load.
-                    </strong>
-
-                    <br><br>
-
-                    ${escapeHTML(
-                        error.message
-                    )}
-
-                    <br><br>
-
-                    Make sure firebase.js is
-                    in the same folder as
-                    admin-dashboard.html.
-
+                    Loading participants...
                 </td>
 
             </tr>
 
-        `;
+        </tbody>
+
+    </table>
+
+</div>
 
 
-        throw error;
+<hr>
 
-    }
 
+<!-- ==========================================
+     SUBMITTED DESIGNS
+=========================================== -->
+
+<h2>
+    Submitted Designs
+</h2>
+
+
+<div id="submissions">
+
+    <p>
+        Loading submissions...
+    </p>
+
+</div>
+
+</div>
+
+<!-- ==========================================
+     FIREBASE
+=========================================== -->
+
+<script type="module">
 
 
     // ==========================================
-    // FIREBASE AUTH IMPORT
+    // IMPORT FIREBASE
     // ==========================================
 
-    const {
+    import {
+        auth,
+        db
+    } from "./firebase.js";
+
+
+    import {
         onAuthStateChanged,
         signOut
-    } =
-    await import(
-        "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"
-    );
+    }
+    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 
-
-    // ==========================================
-    // FIRESTORE IMPORT
-    // ==========================================
-
-    const {
+    import {
         collection,
         getDocs,
         doc,
         updateDoc,
         deleteDoc
-    } =
-    await import(
-        "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"
-    );
-
+    }
+    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 
     // ==========================================
@@ -279,9 +200,8 @@
         "promptforgeadmin@gmail.com";
 
 
-
     // ==========================================
-    // ELEMENTS
+    // PAGE ELEMENTS
     // ==========================================
 
     const table =
@@ -289,133 +209,56 @@
 
 
     const submissions =
-        document.getElementById("submissions");
+        document.getElementById(
+            "submissions"
+        );
 
 
     const refreshBtn =
-        document.getElementById("refreshBtn");
+        document.getElementById(
+            "refreshBtn"
+        );
 
 
     const logoutBtn =
-        document.getElementById("logoutBtn");
+        document.getElementById(
+            "logoutBtn"
+        );
 
 
     const adminEmail =
-        document.getElementById("adminEmail");
-
+        document.getElementById(
+            "adminEmail"
+        );
 
 
     // ==========================================
-    // AUTHENTICATION
+    // AUTHENTICATION CHECK
     // ==========================================
 
     onAuthStateChanged(
         auth,
         async function(user) {
 
-            console.log(
-                "Authentication state:",
-                user
-            );
 
-
-            // User is NOT logged in
+            // No Firebase user
 
             if (!user) {
 
-                console.log(
-                    "No authenticated user."
-                );
-
-
-                adminEmail.innerText =
-                    "Not logged in";
-
-
-                table.innerHTML = `
-
-                    <tr>
-
-                        <td colspan="6">
-
-                            You are not logged in.
-
-                            <br><br>
-
-                            Redirecting to admin login...
-
-                        </td>
-
-                    </tr>
-
-                `;
-
-
-                setTimeout(
-                    function() {
-
-                        window.location.href =
-                            "admin-login.html";
-
-                    },
-                    1500
-                );
-
+                window.location.href =
+                    "admin-login.html";
 
                 return;
 
             }
 
 
-
-            // ==================================
-            // ADMIN CHECK
-            // ==================================
-
-            console.log(
-                "Logged in email:",
-                user.email
-            );
-
-
-            adminEmail.innerText =
-                "Logged in as: " +
-                user.email;
-
-
+            // Check admin email
 
             if (
-                user.email.toLowerCase() !==
-                ADMIN_EMAIL.toLowerCase()
+                user.email !==
+                ADMIN_EMAIL
             ) {
-
-                console.error(
-                    "Unauthorized user:",
-                    user.email
-                );
-
-
-                table.innerHTML = `
-
-                    <tr>
-
-                        <td colspan="6">
-
-                            <strong>
-                                Access denied.
-                            </strong>
-
-                            <br><br>
-
-                            This account is not
-                            authorized as an admin.
-
-                        </td>
-
-                    </tr>
-
-                `;
-
 
                 alert(
                     "You are not authorized to access the admin dashboard."
@@ -428,21 +271,19 @@
                 window.location.href =
                     "admin-login.html";
 
-
                 return;
 
             }
 
 
+            // Show admin email
 
-            // ==================================
-            // LOAD DASHBOARD
-            // ==================================
+            adminEmail.innerText =
+                "Logged in as: " +
+                user.email;
 
-            console.log(
-                "Admin authenticated."
-            );
 
+            // Load dashboard
 
             await refreshData();
 
@@ -450,16 +291,11 @@
     );
 
 
-
     // ==========================================
-    // LOAD PARTICIPANTS
+    // LOAD USERS
     // ==========================================
 
     async function loadUsers() {
-
-        console.log(
-            "Loading participants..."
-        );
 
 
         table.innerHTML = `
@@ -477,6 +313,7 @@
 
         try {
 
+
             const snapshot =
                 await getDocs(
                     collection(
@@ -486,14 +323,10 @@
                 );
 
 
-            console.log(
-                "Users found:",
-                snapshot.size
-            );
-
-
             table.innerHTML = "";
 
+
+            // No users
 
             if (
                 snapshot.empty
@@ -514,19 +347,14 @@
 
                 `;
 
-
                 return;
 
             }
 
 
-
-            // ==================================
-            // CREATE USER ROWS
-            // ==================================
-
             snapshot.forEach(
                 function(userDoc) {
+
 
                     const u =
                         userDoc.data();
@@ -574,76 +402,42 @@
 
                         <td>
 
-                            <strong>
-
-                                ${
-                                    approved
-                                    ? "Approved"
-                                    : "Pending"
-                                }
-
-                            </strong>
+                            ${
+                                approved
+                                ? "Approved"
+                                : "Pending"
+                            }
 
                         </td>
 
 
-                        <td
-                            class="action-buttons"
-                        >
+                        <td>
 
+                            ${
+                                approved
 
-                            <!-- APPROVE -->
+                                ?
 
-                            <button
+                                `
+                                <button
+                                    class="btn btn-secondary"
+                                    disabled
+                                >
+                                    Approved
+                                </button>
+                                `
 
-                                class="${
-                                    approved
-                                    ? "btn btn-secondary"
-                                    : "btn btn-primary"
-                                } approve-btn"
+                                :
 
-                                data-id="${userDoc.id}"
-
-                                ${
-                                    approved
-                                    ? "disabled"
-                                    : ""
-                                }
-
-                            >
-
-                                ${
-                                    approved
-                                    ? "Approved"
-                                    : "Approve"
-                                }
-
-                            </button>
-
-
-
-                            <!-- DELETE -->
-
-                            <button
-
-                                class="
-                                    btn
-                                    btn-danger
-                                    delete-participant-btn
-                                "
-
-                                data-id="${userDoc.id}"
-
-                                style="
-                                    margin-left:8px;
-                                "
-
-                            >
-
-                                Delete
-
-                            </button>
-
+                                `
+                                <button
+                                    class="btn btn-primary approve-btn"
+                                    data-id="${userDoc.id}"
+                                >
+                                    Approve
+                                </button>
+                                `
+                            }
 
                         </td>
 
@@ -658,7 +452,6 @@
             );
 
 
-
             // ==================================
             // APPROVE BUTTONS
             // ==================================
@@ -670,18 +463,16 @@
                 .forEach(
                     function(button) {
 
+
                         button.addEventListener(
                             "click",
                             async function() {
 
+
                                 const id =
-                                    button.dataset.id;
-
-
-                                console.log(
-                                    "Approving user:",
-                                    id
-                                );
+                                    button.getAttribute(
+                                        "data-id"
+                                    );
 
 
                                 button.disabled =
@@ -693,6 +484,7 @@
 
 
                                 try {
+
 
                                     await updateDoc(
 
@@ -710,12 +502,6 @@
                                     );
 
 
-                                    console.log(
-                                        "User approved:",
-                                        id
-                                    );
-
-
                                     await loadUsers();
 
 
@@ -723,15 +509,14 @@
 
                                 catch(error) {
 
+
                                     console.error(
-                                        "Approval error:",
                                         error
                                     );
 
 
                                     alert(
-                                        "Approval failed:\n\n" +
-                                        error.message
+                                        "Failed to approve participant."
                                     );
 
 
@@ -750,121 +535,14 @@
                     }
                 );
 
-
-
-            // ==================================
-            // DELETE PARTICIPANT
-            // ==================================
-
-            document
-                .querySelectorAll(
-                    ".delete-participant-btn"
-                )
-                .forEach(
-                    function(button) {
-
-                        button.addEventListener(
-                            "click",
-                            async function() {
-
-                                const id =
-                                    button.dataset.id;
-
-
-                                const row =
-                                    button.closest("tr");
-
-
-                                const name =
-                                    row
-                                    ?.children[0]
-                                    ?.innerText
-                                    ||
-                                    "this participant";
-
-
-                                const confirmed =
-                                    confirm(
-                                        "Delete " +
-                                        name +
-                                        "?"
-                                    );
-
-
-                                if (!confirmed) {
-
-                                    return;
-
-                                }
-
-
-                                button.disabled =
-                                    true;
-
-
-                                button.innerText =
-                                    "Deleting...";
-
-
-                                try {
-
-                                    await deleteDoc(
-
-                                        doc(
-                                            db,
-                                            "users",
-                                            id
-                                        )
-
-                                    );
-
-
-                                    console.log(
-                                        "Participant deleted:",
-                                        id
-                                    );
-
-
-                                    await loadUsers();
-
-
-                                }
-
-                                catch(error) {
-
-                                    console.error(
-                                        "Delete participant error:",
-                                        error
-                                    );
-
-
-                                    alert(
-                                        "Delete failed:\n\n" +
-                                        error.message
-                                    );
-
-
-                                    button.disabled =
-                                        false;
-
-
-                                    button.innerText =
-                                        "Delete";
-
-                                }
-
-                            }
-                        );
-
-                    }
-                );
-
         }
+
 
         catch(error) {
 
+
             console.error(
-                "LOAD USERS ERROR:",
+                "Users error:",
                 error
             );
 
@@ -875,9 +553,7 @@
 
                     <td colspan="6">
 
-                        <strong>
-                            Failed to load participants.
-                        </strong>
+                        Failed to load participants.
 
                         <br><br>
 
@@ -896,16 +572,11 @@
     }
 
 
-
     // ==========================================
     // LOAD SUBMISSIONS
     // ==========================================
 
     async function loadSubmissions() {
-
-        console.log(
-            "Loading submissions..."
-        );
 
 
         submissions.innerHTML = `
@@ -919,6 +590,7 @@
 
         try {
 
+
             const snapshot =
                 await getDocs(
                     collection(
@@ -928,14 +600,10 @@
                 );
 
 
-            console.log(
-                "Submissions found:",
-                snapshot.size
-            );
-
-
             submissions.innerHTML = "";
 
+
+            // No submissions
 
             if (
                 snapshot.empty
@@ -949,15 +617,14 @@
 
                 `;
 
-
                 return;
 
             }
 
 
-
             snapshot.forEach(
                 function(designDoc) {
+
 
                     const d =
                         designDoc.data();
@@ -976,8 +643,11 @@
                     card.style.cssText = `
 
                         margin-top:20px;
+
                         background:#334155;
+
                         padding:20px;
+
                         border-radius:12px;
 
                     `;
@@ -1051,15 +721,11 @@
 
 
                         <a
-
                             href="${escapeAttribute(
                                 d.image || ""
                             )}"
-
                             target="_blank"
-
                             rel="noopener noreferrer"
-
                         >
 
                             <button
@@ -1073,17 +739,11 @@
 
                         <button
 
-                            class="
-                                btn
-                                btn-danger
-                                delete-submission-btn
-                            "
+                            class="btn btn-danger delete-btn"
 
                             data-id="${designDoc.id}"
 
-                            style="
-                                margin-left:8px;
-                            "
+                            style="margin-left:10px;"
 
                         >
 
@@ -1102,33 +762,36 @@
             );
 
 
-
             // ==================================
-            // DELETE SUBMISSIONS
+            // DELETE BUTTONS
             // ==================================
 
             document
                 .querySelectorAll(
-                    ".delete-submission-btn"
+                    ".delete-btn"
                 )
                 .forEach(
                     function(button) {
+
 
                         button.addEventListener(
                             "click",
                             async function() {
 
+
                                 const id =
-                                    button.dataset.id;
+                                    button.getAttribute(
+                                        "data-id"
+                                    );
 
 
-                                const confirmed =
+                                const ok =
                                     confirm(
                                         "Delete this submission?"
                                     );
 
 
-                                if (!confirmed) {
+                                if (!ok) {
 
                                     return;
 
@@ -1145,6 +808,7 @@
 
                                 try {
 
+
                                     await deleteDoc(
 
                                         doc(
@@ -1158,19 +822,19 @@
 
                                     await loadSubmissions();
 
+
                                 }
 
                                 catch(error) {
 
+
                                     console.error(
-                                        "Delete submission error:",
                                         error
                                     );
 
 
                                     alert(
-                                        "Delete failed:\n\n" +
-                                        error.message
+                                        "Failed to delete submission."
                                     );
 
 
@@ -1191,10 +855,12 @@
 
         }
 
+
         catch(error) {
 
+
             console.error(
-                "LOAD SUBMISSIONS ERROR:",
+                "Submissions error:",
                 error
             );
 
@@ -1203,9 +869,7 @@
 
                 <p>
 
-                    <strong>
-                        Failed to load submissions.
-                    </strong>
+                    Failed to load submissions.
 
                     <br><br>
 
@@ -1222,16 +886,11 @@
     }
 
 
-
     // ==========================================
-    // REFRESH
+    // REFRESH DATA
     // ==========================================
 
     async function refreshData() {
-
-        console.log(
-            "Refreshing dashboard..."
-        );
 
 
         refreshBtn.disabled =
@@ -1244,23 +903,19 @@
 
         try {
 
+
             await Promise.all([
+
                 loadUsers(),
+
                 loadSubmissions()
+
             ]);
 
         }
 
-        catch(error) {
-
-            console.error(
-                "Refresh error:",
-                error
-            );
-
-        }
-
         finally {
+
 
             refreshBtn.disabled =
                 false;
@@ -1274,7 +929,6 @@
     }
 
 
-
     // ==========================================
     // REFRESH BUTTON
     // ==========================================
@@ -1285,7 +939,6 @@
     );
 
 
-
     // ==========================================
     // LOGOUT
     // ==========================================
@@ -1294,13 +947,14 @@
         "click",
         async function() {
 
-            const confirmed =
+
+            const ok =
                 confirm(
                     "Logout from admin dashboard?"
                 );
 
 
-            if (!confirmed) {
+            if (!ok) {
 
                 return;
 
@@ -1309,7 +963,18 @@
 
             try {
 
+
                 await signOut(auth);
+
+
+                localStorage.removeItem(
+                    "adminLoggedIn"
+                );
+
+
+                localStorage.removeItem(
+                    "adminEmail"
+                );
 
 
                 window.location.href =
@@ -1317,7 +982,9 @@
 
             }
 
+
             catch(error) {
+
 
                 console.error(
                     "Logout error:",
@@ -1326,15 +993,13 @@
 
 
                 alert(
-                    "Logout failed:\n\n" +
-                    error.message
+                    "Logout failed."
                 );
 
             }
 
         }
     );
-
 
 
     // ==========================================
@@ -1373,7 +1038,6 @@
     }
 
 
-
     function escapeAttribute(value) {
 
         return String(value)
@@ -1392,7 +1056,6 @@
 
 
 </script>
-
 
 </body>
 
