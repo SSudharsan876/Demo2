@@ -22,7 +22,11 @@
 
         <p>Participant Login</p>
 
-        <!-- Participant Login -->
+
+        <!-- =====================================
+             PARTICIPANT LOGIN
+        ====================================== -->
+
         <input
             type="email"
             id="email"
@@ -36,63 +40,48 @@
             Enter Competition
         </button>
 
-        <!-- Registration Link -->
+
+        <!-- =====================================
+             REGISTRATION LINK
+        ====================================== -->
+
         <p class="auth-link">
             Not registered?
             <a href="register.html">Register Here</a>
         </p>
-        <!-- Hidden Admin Login -->
-<div id="adminBox" style="display:none; margin-top:20px;">
 
-    <h3>Admin Login</h3>
 
-    <input
-        type="text"
-        id="adminUsername"
-        placeholder="Admin Username"
-    >
+        <!-- =====================================
+             HIDDEN ADMIN LOGIN
+             
+             This is NOT visible normally.
+             Press Ctrl + Shift + A
+        ====================================== -->
 
-    <input
-        type="password"
-        id="adminPassword"
-        placeholder="Admin Password"
-    >
+        <div
+            id="adminBox"
+            style="
+                display: none;
+                margin-top: 25px;
+                padding-top: 20px;
+                border-top: 1px solid rgba(255,255,255,0.15);
+            "
+        >
 
-    <button
-        class="btn btn-primary"
-        onclick="adminLogin()">
-        Login as Admin
-    </button>
-
-</div>
-
-        <!-- Divider -->
-        <div class="divider"></div>
-
-        <!-- Admin Login -->
-        <p class="admin-link">
-            <a href="#" onclick="showAdminLogin(); return false;">
-                🔐 Admin Login
-            </a>
-        </p>
-
-        <!-- Admin Login Box -->
-        <div id="adminBox" style="display: none; margin-top: 20px;">
-
-            <h3 style="margin-bottom: 15px;">
-                Admin Login
-            </h3>
+            <h3>🔐 Admin Login</h3>
 
             <input
                 type="text"
                 id="adminUsername"
                 placeholder="Admin Username"
+                autocomplete="username"
             >
 
             <input
                 type="password"
                 id="adminPassword"
                 placeholder="Admin Password"
+                autocomplete="current-password"
             >
 
             <button
@@ -101,16 +90,25 @@
                 Login as Admin
             </button>
 
+            <p
+                id="adminMsg"
+                style="margin-top: 10px;">
+            </p>
+
         </div>
 
     </div>
 
 
-    <!-- =========================
-         FIREBASE
-    ========================== -->
+    <!-- ==========================================
+         FIREBASE + LOGIN JAVASCRIPT
+    =========================================== -->
 
     <script type="module">
+
+        // =====================================
+        // FIREBASE
+        // =====================================
 
         import { db } from "./firebase.js";
 
@@ -136,15 +134,21 @@
                     .toLowerCase();
 
 
+            // Check email
+
             if (!email) {
 
-                alert("Enter your registered email");
+                alert(
+                    "Enter your registered email"
+                );
 
                 return;
             }
 
 
             try {
+
+                // Search Firebase users collection
 
                 const q = query(
                     collection(db, "users"),
@@ -156,23 +160,31 @@
                     await getDocs(q);
 
 
-                // Email not registered
+                // =====================================
+                // EMAIL NOT REGISTERED
+                // =====================================
 
                 if (snapshot.empty) {
 
-                    alert("Email not registered");
+                    alert(
+                        "Email not registered"
+                    );
 
                     return;
                 }
 
 
-                // Get user
+                // =====================================
+                // GET USER
+                // =====================================
 
                 const user =
                     snapshot.docs[0].data();
 
 
-                // Check admin approval
+                // =====================================
+                // CHECK ADMIN APPROVAL
+                // =====================================
 
                 if (!user.emailApproved) {
 
@@ -184,12 +196,15 @@
                 }
 
 
-                // Save participant details
+                // =====================================
+                // SAVE PARTICIPANT DETAILS
+                // =====================================
 
                 localStorage.setItem(
                     "currentUser",
                     user.fullName
                 );
+
 
                 localStorage.setItem(
                     "currentEmail",
@@ -197,16 +212,23 @@
                 );
 
 
-                // Enter competition
+                // =====================================
+                // ENTER COMPETITION
+                // =====================================
 
                 window.location.href =
                     "battle.html";
 
             }
 
+
             catch (error) {
 
-                console.error(error);
+                console.error(
+                    "Participant login error:",
+                    error
+                );
+
 
                 alert(
                     "Login failed: " +
@@ -219,79 +241,181 @@
 
 
         // =====================================
-        // SHOW / HIDE ADMIN LOGIN
+        // HIDDEN ADMIN LOGIN
+        // =====================================
+        //
+        // Shortcut:
+        // Ctrl + Shift + A
+        //
+        // The admin option remains invisible
+        // until this shortcut is pressed.
         // =====================================
 
-        window.showAdminLogin = function () {
+        document.addEventListener(
+            "keydown",
+            function (event) {
 
-            const box =
-                document.getElementById("adminBox");
+                if (
+                    event.ctrlKey &&
+                    event.shiftKey &&
+                    event.key.toLowerCase() === "a"
+                ) {
+
+                    const adminBox =
+                        document.getElementById(
+                            "adminBox"
+                        );
 
 
-            if (box.style.display === "none") {
+                    // Show admin login
 
-                box.style.display = "block";
+                    adminBox.style.display =
+                        "block";
 
-            } else {
 
-                box.style.display = "none";
+                    // Focus username
+
+                    document
+                        .getElementById(
+                            "adminUsername"
+                        )
+                        .focus();
+
+                }
 
             }
-
-        };
+        );
 
 
         // =====================================
         // ADMIN LOGIN
         // =====================================
 
-        window.adminLogin = function () {
+        window.adminLogin = async function () {
 
             const username =
                 document
-                    .getElementById("adminUsername")
+                    .getElementById(
+                        "adminUsername"
+                    )
                     .value
                     .trim();
 
 
             const password =
                 document
-                    .getElementById("adminPassword")
+                    .getElementById(
+                        "adminPassword"
+                    )
                     .value;
 
 
-            // Admin credentials
-
-            const ADMIN_USERNAME = "admin";
-
-            const ADMIN_PASSWORD = "promptforge2026";
-
-
-            if (
-                username === ADMIN_USERNAME &&
-                password === ADMIN_PASSWORD
-            ) {
-
-                // Save admin session
-
-                localStorage.setItem(
-                    "admin",
-                    "true"
+            const adminMsg =
+                document.getElementById(
+                    "adminMsg"
                 );
 
 
-                // Open admin dashboard
+            // =====================================
+            // VALIDATE INPUT
+            // =====================================
 
-                window.location.href =
-                    "admin.html";
+            if (!username || !password) {
+
+                adminMsg.innerText =
+                    "Enter username and password";
+
+                return;
+            }
+
+
+            adminMsg.innerText =
+                "Checking login...";
+
+
+            try {
+
+                // =====================================
+                // SEND LOGIN TO SERVER.JS
+                // =====================================
+
+                const response =
+                    await fetch(
+                        "/admin-login",
+                        {
+
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body: JSON.stringify({
+
+                                username:
+                                    username,
+
+                                password:
+                                    password
+
+                            })
+
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                // =====================================
+                // SUCCESS
+                // =====================================
+
+                if (data.success) {
+
+                    // Save admin session
+
+                    localStorage.setItem(
+                        "admin",
+                        "true"
+                    );
+
+
+                    // Open admin dashboard
+
+                    window.location.href =
+                        "admin.html";
+
+                }
+
+
+                // =====================================
+                // FAILED LOGIN
+                // =====================================
+
+                else {
+
+                    adminMsg.innerText =
+                        data.message ||
+                        "Invalid admin username or password";
+
+                }
 
             }
 
-            else {
 
-                alert(
-                    "Invalid admin username or password"
+            catch (error) {
+
+                console.error(
+                    "Admin login error:",
+                    error
                 );
+
+
+                adminMsg.innerText =
+                    "Unable to connect to server";
 
             }
 
