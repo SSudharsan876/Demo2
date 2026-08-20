@@ -1,487 +1,859 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Prompt Forge | AI Design Workspace</title>
-  <link rel="stylesheet" href="style.css">
-</head>
+const express = require("express");
+const path = require("path");
+const fs = require("fs");
 
-<body>
+const app = express();
 
-<div class="container">
+// ==========================================
+// MIDDLEWARE
+// ==========================================
 
-  <!-- 20 MINUTE TIMER -->
-  <div id="timerBox" style="
-    text-align:center;
-    margin-bottom:20px;
-    padding:15px;
-    border-radius:12px;
-    background:#111827;
-    color:white;
-  ">
-    <div style="font-size:14px;">Time Remaining</div>
+app.use(express.json({ limit: "10mb" }));
 
-    <div id="timer" style="
-      font-size:32px;
-      font-weight:bold;
-      margin-top:5px;
-    ">20:00</div>
-  </div>
+app.use(express.static(path.join(__dirname, "public")));
 
 
-  <div class="workspace-header">
+// ==========================================
+// FILE PATHS
+// ==========================================
 
-    <div>
+const USERS_FILE = path.join(__dirname, "users.json");
+const SUBMISSIONS_FILE = path.join(__dirname, "submissions.json");
 
-      <span class="badge">AI Design Workspace</span>
 
-      <h1>Prompt Forge</h1>
+// ==========================================
+// SESSION SETTINGS
+// ==========================================
 
-      <p>Create your design using Canva AI and submit your final artwork.</p>
+// 20 minutes
+const SESSION_DURATION = 20 * 60 * 1000;
 
-    </div>
 
+// ==========================================
+// CREATE JSON FILES IF THEY DON'T EXIST
+// ==========================================
 
-    <div class="participant-chip">
+if (!fs.existsSync(USERS_FILE)) {
+    fs.writeFileSync(USERS_FILE, "[]");
+}
 
-      <span>Participant</span>
+if (!fs.existsSync(SUBMISSIONS_FILE)) {
+    fs.writeFileSync(SUBMISSIONS_FILE, "[]");
+}
 
-      <strong id="user">Guest</strong>
 
-    </div>
+// ==========================================
+// HELPER FUNCTIONS
+// ==========================================
 
-  </div>
+function readUsers() {
 
+    try {
 
-  <div class="workspace-grid">
+        return JSON.parse(
+            fs.readFileSync(USERS_FILE, "utf8")
+        );
 
+    } catch (error) {
 
-    <div class="workspace-panel">
+        console.error(
+            "Error reading users.json:",
+            error
+        );
 
-      <h2>Design Prompt</h2>
+        return [];
 
-      <textarea
-        id="prompt"
-        placeholder="Describe your poster, logo, banner, or creative concept...
+    }
 
-Example:
-Design a premium A3 vertical college symposium poster for Prompt Forge with futuristic AI visuals, blue and purple neon lighting, bold typography, holographic interface elements, and a professional tech event aesthetic."
-      ></textarea>
+}
 
 
-      <button
-        id="generateBtn"
-        class="btn btn-primary"
-      >
-        Launch Canva AI
-      </button>
+function writeUsers(data) {
 
-
-      <p
-        id="loading"
-        class="helper-text"
-      ></p>
-
-    </div>
-
-
-
-    <div class="workspace-panel">
-
-      <h2>Upload Final Design</h2>
-
-
-      <div class="upload-box">
-
-        <input
-          type="file"
-          id="imageUpload"
-          accept="image/*"
-        >
-
-
-        <img
-          id="preview"
-          class="preview-image"
-          style="display:none;"
-          alt="Design preview"
-        >
-
-      </div>
-
-
-      <button
-        id="submitBtn"
-        class="btn btn-primary"
-      >
-        Submit Design
-      </button>
-
-
-      <p class="helper-text">
-        Only your final Canva-generated design should be submitted.
-      </p>
-
-    </div>
-
-  </div>
-
-</div>
-
-
-<script type="module">
-
-import { db } from './firebase.js';
-
-import {
-  collection,
-  addDoc
-} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-
-
-// =====================================================
-// DISPLAY CURRENT USER
-// =====================================================
-
-document.getElementById('user').innerText =
-  localStorage.getItem('currentUser') || 'Guest';
-
-
-// =====================================================
-// IMAGE PREVIEW
-// =====================================================
-
-const imageInput = document.getElementById('imageUpload');
-
-const preview = document.getElementById('preview');
-
-
-// =====================================================
-// CANVA AI BUTTON
-// =====================================================
-
-document.getElementById('generateBtn').addEventListener('click', () => {
-
-  const prompt =
-    document.getElementById('prompt').value.trim();
-
-
-  if (!prompt) {
-
-    alert('Enter your design prompt');
-
-    return;
-
-  }
-
-
-  const canvaLink =
-    `https://www.canva.com/ai-image-generator/?prompt=${encodeURIComponent(prompt)}`;
-
-
-  window.open(canvaLink, '_blank');
-
-
-  document.getElementById('loading').innerText =
-    'Canva AI opened in a new tab. Generate your design, download it, and upload it below.';
-
-});
-
-
-// =====================================================
-// IMAGE UPLOAD PREVIEW
-// =====================================================
-
-imageInput.addEventListener('change', (e) => {
-
-  const file = e.target.files[0];
-
-
-  if (!file) return;
-
-
-  const reader = new FileReader();
-
-
-  reader.onload = (event) => {
-
-    preview.src = event.target.result;
-
-    preview.style.display = 'block';
-
-  };
-
-
-  reader.readAsDataURL(file);
-
-});
-
-
-// =====================================================
-// SUBMIT DESIGN
-// =====================================================
-
-document.getElementById('submitBtn').addEventListener('click', async () => {
-
-  const file = imageInput.files[0];
-
-
-  if (!file) {
-
-    alert('Please upload the generated image first.');
-
-    return;
-
-  }
-
-
-  const submitBtn =
-    document.getElementById('submitBtn');
-
-
-  submitBtn.disabled = true;
-
-  submitBtn.innerText = 'Submitting...';
-
-
-  try {
-
-    // -----------------------------------------------
-    // CLOUDINARY UPLOAD
-    // -----------------------------------------------
-
-    const formData = new FormData();
-
-
-    formData.append('file', file);
-
-    formData.append('upload_preset', 'ml_default');
-
-
-    const uploadResponse = await fetch(
-      'https://api.cloudinary.com/v1_1/pydcirpp/image/upload',
-      {
-        method: 'POST',
-        body: formData
-      }
+    fs.writeFileSync(
+        USERS_FILE,
+        JSON.stringify(data, null, 2)
     );
 
-
-    const uploadData =
-      await uploadResponse.json();
+}
 
 
-    if (
-      !uploadResponse.ok ||
-      !uploadData.secure_url
-    ) {
+function readSubmissions() {
 
-      throw new Error(
-        uploadData.error?.message ||
-        'Cloudinary upload failed'
-      );
+    try {
+
+        return JSON.parse(
+            fs.readFileSync(SUBMISSIONS_FILE, "utf8")
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Error reading submissions.json:",
+            error
+        );
+
+        return [];
+
+    }
+
+}
+
+
+function writeSubmissions(data) {
+
+    fs.writeFileSync(
+        SUBMISSIONS_FILE,
+        JSON.stringify(data, null, 2)
+    );
+
+}
+
+
+// ==========================================
+// PARTICIPANT REGISTRATION
+// ==========================================
+
+app.post("/register", (req, res) => {
+
+    const {
+        fullName,
+        college,
+        department,
+        email,
+        phone
+    } = req.body;
+
+
+    if (!fullName || !email) {
+
+        return res.json({
+
+            success: false,
+
+            message:
+                "Name and email are required"
+
+        });
 
     }
 
 
-    // -----------------------------------------------
-    // SAVE SUBMISSION TO FIRESTORE
-    // -----------------------------------------------
+    let users = readUsers();
 
-    await addDoc(
-      collection(db, 'submissions'),
-      {
 
-        participant:
-          localStorage.getItem('currentUser') || 'Guest',
+    const cleanEmail =
+        email.trim().toLowerCase();
+
+
+    const existing = users.find(
+        u =>
+            u.email &&
+            u.email.toLowerCase() === cleanEmail
+    );
+
+
+    if (existing) {
+
+        return res.json({
+
+            success: false,
+
+            message:
+                "Email already registered"
+
+        });
+
+    }
+
+
+    users.push({
+
+        fullName:
+            fullName.trim(),
+
+        college:
+            college || "",
+
+        department:
+            department || "",
+
+        phone:
+            phone || "",
 
         email:
-          localStorage.getItem('currentEmail') || '',
+            cleanEmail,
 
-        prompt:
-          document.getElementById('prompt').value.trim(),
+        emailApproved:
+            false
 
-        image:
-          uploadData.secure_url,
-
-        submittedAt:
-          new Date().toLocaleString()
-
-      }
-    );
+    });
 
 
-    // -----------------------------------------------
-    // SUCCESS
-    // -----------------------------------------------
-
-    alert('🎉 Design submitted successfully!');
+    writeUsers(users);
 
 
-    document.getElementById('prompt').value = '';
+    res.json({
 
-    imageInput.value = '';
+        success: true,
 
-    preview.style.display = 'none';
+        message:
+            "Registration successful. Wait for admin approval."
 
-  }
-
-
-  catch (error) {
-
-    console.error(error);
-
-    alert(
-      'Submission failed: ' +
-      error.message
-    );
-
-  }
-
-
-  finally {
-
-    submitBtn.disabled = false;
-
-    submitBtn.innerText = 'Submit Design';
-
-  }
+    });
 
 });
 
 
-// =====================================================
-// 20 MINUTE AUTO SIGN-OUT TIMER
-// =====================================================
+// ==========================================
+// PARTICIPANT LOGIN
+// ==========================================
 
-const TIMER_DURATION =
-  20 * 60 * 1000; // 20 minutes
+app.post("/login", (req, res) => {
 
-
-const timerElement =
-  document.getElementById('timer');
+    const { email } = req.body;
 
 
-// -----------------------------------------------------
-// START TIMER
-// -----------------------------------------------------
+    if (!email) {
 
-// If there is no existing timer,
-// create one now.
+        return res.json({
 
-if (!localStorage.getItem('timerStart')) {
+            success: false,
 
-  localStorage.setItem(
-    'timerStart',
-    Date.now()
-  );
+            message:
+                "Email is required"
 
-}
+        });
+
+    }
 
 
-// -----------------------------------------------------
-// UPDATE TIMER
-// -----------------------------------------------------
+    const users = readUsers();
 
-function updateTimer() {
 
-  const startTime =
-    parseInt(
-      localStorage.getItem('timerStart'),
-      10
+    const cleanEmail =
+        email.trim().toLowerCase();
+
+
+    const user = users.find(
+
+        u =>
+            u.email &&
+            u.email.toLowerCase() === cleanEmail
+
     );
 
 
-  const elapsed =
-    Date.now() - startTime;
+    // ======================================
+    // EMAIL NOT REGISTERED
+    // ======================================
+
+    if (!user) {
+
+        return res.json({
+
+            success: false,
+
+            message:
+                "Email not registered"
+
+        });
+
+    }
 
 
-  const remaining =
-    TIMER_DURATION - elapsed;
+    // ======================================
+    // WAITING FOR APPROVAL
+    // ======================================
+
+    if (!user.emailApproved) {
+
+        return res.json({
+
+            success: false,
+
+            message:
+                "Waiting for admin approval"
+
+        });
+
+    }
 
 
-  // -----------------------------------------------
-  // TIMER EXPIRED
-  // -----------------------------------------------
+    // ======================================
+    // START 20 MINUTE SESSION
+    // ======================================
 
-  if (remaining <= 0) {
-
-    timerElement.innerText = '00:00';
-
-
-    // Stop the interval
-    clearInterval(timerInterval);
+    const sessionStartedAt =
+        Date.now();
 
 
-    // Remove session information
-    localStorage.removeItem('currentUser');
-
-    localStorage.removeItem('currentEmail');
-
-    localStorage.removeItem('timerStart');
+    const sessionExpiresAt =
+        sessionStartedAt + SESSION_DURATION;
 
 
-    alert(
-      '⏰ Your 20-minute session has expired. You have been signed out.'
+    // ======================================
+    // LOGIN SUCCESSFUL
+    // ======================================
+
+    res.json({
+
+        success: true,
+
+        message:
+            "Login successful",
+
+        user,
+
+        sessionStartedAt,
+
+        sessionExpiresAt,
+
+        sessionDuration:
+            SESSION_DURATION
+
+    });
+
+});
+
+
+// ==========================================
+// SESSION STATUS
+// ==========================================
+
+app.post("/session-status", (req, res) => {
+
+    const {
+        email,
+        sessionExpiresAt
+    } = req.body;
+
+
+    if (!email || !sessionExpiresAt) {
+
+        return res.json({
+
+            success: false,
+
+            active: false,
+
+            message:
+                "Session information is missing"
+
+        });
+
+    }
+
+
+    const users = readUsers();
+
+
+    const cleanEmail =
+        email.trim().toLowerCase();
+
+
+    const user = users.find(
+
+        u =>
+            u.email &&
+            u.email.toLowerCase() === cleanEmail
+
     );
 
 
-    // Redirect to login page
-    window.location.href = 'login.html';
+    // ======================================
+    // USER DOES NOT EXIST
+    // ======================================
+
+    if (!user) {
+
+        return res.json({
+
+            success: false,
+
+            active: false,
+
+            message:
+                "User not found"
+
+        });
+
+    }
 
 
-    return;
+    // ======================================
+    // CHECK APPROVAL
+    // ======================================
 
-  }
+    if (!user.emailApproved) {
+
+        return res.json({
+
+            success: false,
+
+            active: false,
+
+            message:
+                "User is not approved"
+
+        });
+
+    }
 
 
-  // -----------------------------------------------
-  // CALCULATE MINUTES & SECONDS
-  // -----------------------------------------------
+    // ======================================
+    // CHECK EXPIRATION
+    // ======================================
 
-  const minutes =
-    Math.floor(
-      remaining / 60000
+    const now =
+        Date.now();
+
+
+    const expiresAt =
+        Number(sessionExpiresAt);
+
+
+    if (
+        !Number.isFinite(expiresAt) ||
+        now >= expiresAt
+    ) {
+
+        return res.json({
+
+            success: false,
+
+            active: false,
+
+            expired: true,
+
+            message:
+                "Your 20-minute session has expired."
+
+        });
+
+    }
+
+
+    // ======================================
+    // SESSION STILL ACTIVE
+    // ======================================
+
+    res.json({
+
+        success: true,
+
+        active: true,
+
+        expired: false,
+
+        remaining:
+            expiresAt - now,
+
+        sessionExpiresAt:
+            expiresAt
+
+    });
+
+});
+
+
+// ==========================================
+// ADMIN LOGIN
+// ==========================================
+
+app.post("/admin-login", (req, res) => {
+
+    const {
+        username,
+        password
+    } = req.body;
+
+
+    // Admin credentials
+
+    const ADMIN_USERNAME =
+        "admin";
+
+    const ADMIN_PASSWORD =
+        "promptforge2026";
+
+
+    if (
+        username === ADMIN_USERNAME &&
+        password === ADMIN_PASSWORD
+    ) {
+
+        return res.json({
+
+            success: true,
+
+            message:
+                "Admin login successful"
+
+        });
+
+    }
+
+
+    res.json({
+
+        success: false,
+
+        message:
+            "Invalid admin credentials"
+
+    });
+
+});
+
+
+// ==========================================
+// GET ALL USERS
+// ==========================================
+
+app.get("/users", (req, res) => {
+
+    const users =
+        readUsers();
+
+    res.json(users);
+
+});
+
+
+// ==========================================
+// APPROVE PARTICIPANT
+// ==========================================
+
+app.post("/approve-user", (req, res) => {
+
+    const { email } = req.body;
+
+
+    if (!email) {
+
+        return res.json({
+
+            success: false,
+
+            message:
+                "Email is required"
+
+        });
+
+    }
+
+
+    let users =
+        readUsers();
+
+
+    const cleanEmail =
+        email.trim().toLowerCase();
+
+
+    const user =
+        users.find(
+
+            u =>
+                u.email &&
+                u.email.toLowerCase() === cleanEmail
+
+        );
+
+
+    if (!user) {
+
+        return res.json({
+
+            success: false,
+
+            message:
+                "User not found"
+
+        });
+
+    }
+
+
+    user.emailApproved =
+        true;
+
+
+    writeUsers(users);
+
+
+    res.json({
+
+        success: true,
+
+        message:
+            "User approved successfully"
+
+    });
+
+});
+
+
+// ==========================================
+// SUBMIT DESIGN
+// ==========================================
+
+app.post("/submit-design", (req, res) => {
+
+    const {
+        email,
+        participant,
+        prompt,
+        image,
+        sessionExpiresAt
+    } = req.body;
+
+
+    // ======================================
+    // BASIC VALIDATION
+    // ======================================
+
+    if (
+        !email ||
+        !participant ||
+        !image
+    ) {
+
+        return res.json({
+
+            success: false,
+
+            message:
+                "Email, participant name and image are required"
+
+        });
+
+    }
+
+
+    // ======================================
+    // CHECK 20 MINUTE SESSION
+    // ======================================
+
+    if (!sessionExpiresAt) {
+
+        return res.json({
+
+            success: false,
+
+            sessionExpired: true,
+
+            message:
+                "Session information is missing. Please log in again."
+
+        });
+
+    }
+
+
+    const expiresAt =
+        Number(sessionExpiresAt);
+
+
+    if (
+        !Number.isFinite(expiresAt) ||
+        Date.now() >= expiresAt
+    ) {
+
+        return res.json({
+
+            success: false,
+
+            sessionExpired: true,
+
+            message:
+                "Your 20-minute session has expired. Please log in again."
+
+        });
+
+    }
+
+
+    // ======================================
+    // CHECK USER
+    // ======================================
+
+    const users =
+        readUsers();
+
+
+    const cleanEmail =
+        email.trim().toLowerCase();
+
+
+    const user =
+        users.find(
+
+            u =>
+                u.email &&
+                u.email.toLowerCase() === cleanEmail
+
+        );
+
+
+    if (!user) {
+
+        return res.json({
+
+            success: false,
+
+            message:
+                "User not found"
+
+        });
+
+    }
+
+
+    // ======================================
+    // CHECK APPROVAL
+    // ======================================
+
+    if (!user.emailApproved) {
+
+        return res.json({
+
+            success: false,
+
+            message:
+                "Participant is not approved"
+
+        });
+
+    }
+
+
+    // ======================================
+    // SAVE SUBMISSION
+    // ======================================
+
+    let submissions =
+        readSubmissions();
+
+
+    submissions.push({
+
+        email:
+            cleanEmail,
+
+        participant,
+
+        prompt:
+            prompt || "",
+
+        image,
+
+        submittedAt:
+            new Date().toLocaleString()
+
+    });
+
+
+    writeSubmissions(
+        submissions
     );
 
 
-  const seconds =
-    Math.floor(
-      (remaining % 60000) / 1000
+    // ======================================
+    // SUCCESS
+    // ======================================
+
+    res.json({
+
+        success: true,
+
+        message:
+            "Design submitted successfully"
+
+    });
+
+});
+
+
+// ==========================================
+// GET ALL SUBMITTED DESIGNS
+// ==========================================
+
+app.get("/submissions", (req, res) => {
+
+    const users =
+        readUsers();
+
+
+    const submissions =
+        readSubmissions();
+
+
+    const result =
+        submissions.map(s => {
+
+            const user =
+                users.find(
+
+                    u =>
+                        u.email &&
+                        s.email &&
+                        u.email.toLowerCase() ===
+                        s.email.toLowerCase()
+
+                );
+
+
+            return {
+
+                ...s,
+
+                emailApproved:
+                    user
+                        ? user.emailApproved
+                        : false
+
+            };
+
+        });
+
+
+    res.json(result);
+
+});
+
+
+// ==========================================
+// HOME PAGE
+// ==========================================
+
+app.get("/", (req, res) => {
+
+    res.sendFile(
+
+        path.join(
+            __dirname,
+            "public",
+            "index.html"
+        )
+
     );
 
-
-  // -----------------------------------------------
-  // DISPLAY TIMER
-  // -----------------------------------------------
-
-  timerElement.innerText =
-    String(minutes).padStart(2, '0') +
-    ':' +
-    String(seconds).padStart(2, '0');
-
-}
+});
 
 
-// -----------------------------------------------------
-// START TIMER IMMEDIATELY
-// -----------------------------------------------------
+// ==========================================
+// START SERVER
+// ==========================================
 
-updateTimer();
+const PORT = 3000;
 
 
-// -----------------------------------------------------
-// UPDATE EVERY SECOND
-// -----------------------------------------------------
+app.listen(PORT, () => {
 
-const timerInterval =
-  setInterval(
-    updateTimer,
-    1000
-  );
+    console.log(
+        `Prompt Forge server running at http://localhost:${PORT}`
+    );
 
-</script>
-
-</body>
-</html>
+});
