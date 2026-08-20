@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 
@@ -13,16 +12,12 @@
 
     <title>Prompt Forge | Admin Dashboard</title>
 
-    <link
-        rel="stylesheet"
-        href="style.css"
-    >
+    <link rel="stylesheet" href="style.css">
 
 </head>
 
 
 <body>
-
 
 <div class="container">
 
@@ -48,20 +43,14 @@
                 submitted AI designs.
             </p>
 
-            <p
-                id="adminEmail"
-                style="font-size:14px;"
-            ></p>
+            <p id="adminEmail"
+               style="font-size:14px;">
+            </p>
 
         </div>
 
 
-        <div
-            style="
-                display:flex;
-                gap:10px;
-            "
-        >
+        <div style="display:flex; gap:10px;">
 
             <button
                 id="refreshBtn"
@@ -69,7 +58,6 @@
             >
                 Refresh Data
             </button>
-
 
             <button
                 id="logoutBtn"
@@ -173,7 +161,6 @@
 </div>
 
 
-
 <!-- ==========================================
      FIREBASE
 =========================================== -->
@@ -208,14 +195,12 @@
     from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 
-
     // ==========================================
     // ADMIN EMAIL
     // ==========================================
 
     const ADMIN_EMAIL =
-        "promptforgeadmin@gmail.com";
-
+        "admin@aiprompt.com";
 
 
     // ==========================================
@@ -227,20 +212,27 @@
 
 
     const submissions =
-        document.getElementById("submissions");
+        document.getElementById(
+            "submissions"
+        );
 
 
     const refreshBtn =
-        document.getElementById("refreshBtn");
+        document.getElementById(
+            "refreshBtn"
+        );
 
 
     const logoutBtn =
-        document.getElementById("logoutBtn");
+        document.getElementById(
+            "logoutBtn"
+        );
 
 
     const adminEmail =
-        document.getElementById("adminEmail");
-
+        document.getElementById(
+            "adminEmail"
+        );
 
 
     // ==========================================
@@ -250,6 +242,7 @@
     onAuthStateChanged(
         auth,
         async function(user) {
+
 
             // No Firebase user
 
@@ -299,7 +292,6 @@
 
         }
     );
-
 
 
     // ==========================================
@@ -363,11 +355,6 @@
             }
 
 
-
-            // ==================================
-            // CREATE PARTICIPANT ROWS
-            // ==================================
-
             snapshot.forEach(
                 function(userDoc) {
 
@@ -388,51 +375,33 @@
 
                     row.innerHTML = `
 
-                        <!-- NAME -->
-
                         <td>
-
                             ${escapeHTML(
                                 u.fullName || ""
                             )}
-
                         </td>
 
 
-                        <!-- COLLEGE -->
-
                         <td>
-
                             ${escapeHTML(
                                 u.college || ""
                             )}
-
                         </td>
 
 
-                        <!-- DEPARTMENT -->
-
                         <td>
-
                             ${escapeHTML(
                                 u.department || ""
                             )}
-
                         </td>
 
 
-                        <!-- EMAIL -->
-
                         <td>
-
                             ${escapeHTML(
                                 u.email || ""
                             )}
-
                         </td>
 
-
-                        <!-- STATUS -->
 
                         <td>
 
@@ -445,56 +414,33 @@
                         </td>
 
 
-                        <!-- ACTION BUTTONS -->
+                        <td>
 
-                        <td class="action-buttons">
+                            ${
+                                approved
 
+                                ?
 
-                            <!-- APPROVE BUTTON -->
+                                `
+                                <button
+                                    class="btn btn-secondary"
+                                    disabled
+                                >
+                                    Approved
+                                </button>
+                                `
 
-                            <button
+                                :
 
-                                class="${
-                                    approved
-                                    ? "btn btn-secondary"
-                                    : "btn btn-primary"
-                                } approve-btn"
-
-                                data-id="${userDoc.id}"
-
-                                ${
-                                    approved
-                                    ? "disabled"
-                                    : ""
-                                }
-
-                            >
-
-                                ${
-                                    approved
-                                    ? "Approved"
-                                    : "Approve"
-                                }
-
-                            </button>
-
-
-                            <!-- DELETE BUTTON -->
-
-                            <button
-
-                                class="btn btn-danger delete-participant-btn"
-
-                                data-id="${userDoc.id}"
-
-                                style="margin-left:8px;"
-
-                            >
-
-                                Delete
-
-                            </button>
-
+                                `
+                                <button
+                                    class="btn btn-primary approve-btn"
+                                    data-id="${userDoc.id}"
+                                >
+                                    Approve
+                                </button>
+                                `
+                            }
 
                         </td>
 
@@ -507,7 +453,6 @@
 
                 }
             );
-
 
 
             // ==================================
@@ -560,11 +505,6 @@
                                     );
 
 
-                                    alert(
-                                        "Participant approved successfully."
-                                    );
-
-
                                     await loadUsers();
 
 
@@ -574,7 +514,6 @@
 
 
                                     console.error(
-                                        "Approve error:",
                                         error
                                     );
 
@@ -590,125 +529,6 @@
 
                                     button.innerText =
                                         "Approve";
-
-                                }
-
-                            }
-                        );
-
-                    }
-                );
-
-
-
-            // ==================================
-            // DELETE PARTICIPANT BUTTONS
-            // ==================================
-
-            document
-                .querySelectorAll(
-                    ".delete-participant-btn"
-                )
-                .forEach(
-                    function(button) {
-
-
-                        button.addEventListener(
-                            "click",
-                            async function() {
-
-
-                                const id =
-                                    button.getAttribute(
-                                        "data-id"
-                                    );
-
-
-                                const participantRow =
-                                    button.closest("tr");
-
-
-                                const participantName =
-                                    participantRow
-                                        ?.children[0]
-                                        ?.innerText ||
-                                    "this participant";
-
-
-                                // Confirmation
-
-                                const ok =
-                                    confirm(
-                                        "Are you sure you want to delete " +
-                                        participantName +
-                                        "?"
-                                    );
-
-
-                                if (!ok) {
-
-                                    return;
-
-                                }
-
-
-                                button.disabled =
-                                    true;
-
-
-                                button.innerText =
-                                    "Deleting...";
-
-
-                                try {
-
-
-                                    // Delete participant
-                                    // from Firestore users collection
-
-                                    await deleteDoc(
-
-                                        doc(
-                                            db,
-                                            "users",
-                                            id
-                                        )
-
-                                    );
-
-
-                                    alert(
-                                        "Participant deleted successfully."
-                                    );
-
-
-                                    // Reload participant list
-
-                                    await loadUsers();
-
-
-                                }
-
-                                catch(error) {
-
-
-                                    console.error(
-                                        "Delete participant error:",
-                                        error
-                                    );
-
-
-                                    alert(
-                                        "Failed to delete participant."
-                                    );
-
-
-                                    button.disabled =
-                                        false;
-
-
-                                    button.innerText =
-                                        "Delete";
 
                                 }
 
@@ -753,7 +573,6 @@
         }
 
     }
-
 
 
     // ==========================================
@@ -804,7 +623,6 @@
                 return;
 
             }
-
 
 
             snapshot.forEach(
@@ -906,15 +724,11 @@
 
 
                         <a
-
                             href="${escapeAttribute(
                                 d.image || ""
                             )}"
-
                             target="_blank"
-
                             rel="noopener noreferrer"
-
                         >
 
                             <button
@@ -951,9 +765,8 @@
             );
 
 
-
             // ==================================
-            // DELETE SUBMISSION BUTTONS
+            // DELETE BUTTONS
             // ==================================
 
             document
@@ -1076,7 +889,6 @@
     }
 
 
-
     // ==========================================
     // REFRESH DATA
     // ==========================================
@@ -1105,7 +917,6 @@
 
         }
 
-
         finally {
 
 
@@ -1121,16 +932,14 @@
     }
 
 
-
     // ==========================================
     // REFRESH BUTTON
-    ==========================================
+    // ==========================================
 
     refreshBtn.addEventListener(
         "click",
         refreshData
     );
-
 
 
     // ==========================================
@@ -1196,7 +1005,6 @@
     );
 
 
-
     // ==========================================
     // SECURITY HELPERS
     // ==========================================
@@ -1233,7 +1041,6 @@
     }
 
 
-
     function escapeAttribute(value) {
 
         return String(value)
@@ -1253,8 +1060,6 @@
 
 </script>
 
-
 </body>
 
 </html>
-```
