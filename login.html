@@ -1,160 +1,280 @@
 <!DOCTYPE html>
+<html lang="en">
 
-<html>
 <head>
-    <title>Prompt Forge - Login</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Prompt Forge | Participant Login</title>
+
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
 
-<div class="container">
+<body class="auth-page">
 
-```
-<h1>⚡ Prompt Forge</h1>
-<h2>Participant Login</h2>
+    <div class="auth-card">
 
-<input type="email" id="email" placeholder="Registered Email Address">
+        <!-- Logo -->
+        <div class="auth-logo">⚡</div>
 
-<button onclick="login()">Enter Competition</button>
+        <!-- Heading -->
+        <h1>Prompt Forge</h1>
 
-<p>Not registered? <a href="register.html">Register Here</a></p>
+        <p>Participant Login</p>
 
-<hr style="margin:30px 0;">
+        <!-- Participant Login -->
+        <input
+            type="email"
+            id="email"
+            placeholder="Registered Email Address"
+            required
+        >
 
-<p><a href="#" onclick="showAdminLogin()">🔐 Admin Login</a></p>
+        <button
+            class="btn btn-primary"
+            onclick="login()">
+            Enter Competition
+        </button>
 
-<div id="adminBox" style="display:none; margin-top:20px;">
+        <!-- Registration Link -->
+        <p class="auth-link">
+            Not registered?
+            <a href="register.html">Register Here</a>
+        </p>
 
-    <h3>Admin Login</h3>
+        <!-- Divider -->
+        <div class="divider"></div>
 
-    <input type="text" id="adminUsername" placeholder="Admin Username">
+        <!-- Admin Login -->
+        <p class="admin-link">
+            <a href="#" onclick="showAdminLogin(); return false;">
+                🔐 Admin Login
+            </a>
+        </p>
 
-    <input type="password" id="adminPassword" placeholder="Admin Password">
+        <!-- Admin Login Box -->
+        <div id="adminBox" style="display: none; margin-top: 20px;">
 
-    <button onclick="adminLogin()">Login as Admin</button>
+            <h3 style="margin-bottom: 15px;">
+                Admin Login
+            </h3>
 
-</div>
-```
+            <input
+                type="text"
+                id="adminUsername"
+                placeholder="Admin Username"
+            >
 
-</div>
+            <input
+                type="password"
+                id="adminPassword"
+                placeholder="Admin Password"
+            >
 
-<script type="module">
+            <button
+                class="btn btn-primary"
+                onclick="adminLogin()">
+                Login as Admin
+            </button>
 
-import { db } from "./firebase.js";
+        </div>
 
-import {
+    </div>
 
-    collection,
-    query,
-    where,
-    getDocs
 
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    <!-- =========================
+         FIREBASE
+    ========================== -->
 
+    <script type="module">
 
-// ---------------- PARTICIPANT LOGIN ----------------
+        import { db } from "./firebase.js";
 
-window.login = async function(){
+        import {
+            collection,
+            query,
+            where,
+            getDocs
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    const email =
 
-    document.getElementById("email").value.trim().toLowerCase();
+        // =====================================
+        // PARTICIPANT LOGIN
+        // =====================================
 
-    if(!email){
+        window.login = async function () {
 
-        alert("Enter your registered email");
+            const email =
+                document
+                    .getElementById("email")
+                    .value
+                    .trim()
+                    .toLowerCase();
 
-        return;
 
-    }
+            if (!email) {
 
-    const q = query(
+                alert("Enter your registered email");
 
-        collection(db, "users"),
+                return;
+            }
 
-        where("email", "==", email)
 
-    );
+            try {
 
-    const snapshot = await getDocs(q);
+                const q = query(
+                    collection(db, "users"),
+                    where("email", "==", email)
+                );
 
-    if(snapshot.empty){
 
-        alert("Email not registered");
+                const snapshot =
+                    await getDocs(q);
 
-        return;
 
-    }
+                // Email not registered
 
-    const user = snapshot.docs[0].data();
+                if (snapshot.empty) {
 
-    if(!user.emailApproved){
+                    alert("Email not registered");
 
-        alert("Waiting for admin approval");
+                    return;
+                }
 
-        return;
 
-    }
+                // Get user
 
-    // Save participant details
+                const user =
+                    snapshot.docs[0].data();
 
-    localStorage.setItem("currentUser", user.fullName);
 
-    localStorage.setItem("currentEmail", user.email);
+                // Check admin approval
 
-    window.location.href = "battle.html";
+                if (!user.emailApproved) {
 
-};
+                    alert(
+                        "Waiting for admin approval"
+                    );
 
+                    return;
+                }
 
-// ---------------- SHOW ADMIN LOGIN ----------------
 
-window.showAdminLogin = function(){
+                // Save participant details
 
-    const box = document.getElementById("adminBox");
+                localStorage.setItem(
+                    "currentUser",
+                    user.fullName
+                );
 
-    box.style.display =
+                localStorage.setItem(
+                    "currentEmail",
+                    user.email
+                );
 
-    box.style.display === "none" ? "block" : "none";
 
-};
+                // Enter competition
 
+                window.location.href =
+                    "battle.html";
 
-// ---------------- ADMIN LOGIN ----------------
+            }
 
-window.adminLogin = function(){
+            catch (error) {
 
-    const username =
+                console.error(error);
 
-    document.getElementById("adminUsername").value.trim();
+                alert(
+                    "Login failed: " +
+                    error.message
+                );
 
-    const password =
+            }
 
-    document.getElementById("adminPassword").value;
+        };
 
-    // Admin credentials
 
-    const ADMIN_USERNAME = "admin";
+        // =====================================
+        // SHOW / HIDE ADMIN LOGIN
+        // =====================================
 
-    const ADMIN_PASSWORD = "promptforge2026";
+        window.showAdminLogin = function () {
 
-    if(username === ADMIN_USERNAME && password === ADMIN_PASSWORD){
+            const box =
+                document.getElementById("adminBox");
 
-        localStorage.setItem("admin", "true");
 
-        window.location.href = "admin.html";
+            if (box.style.display === "none") {
 
-    }
+                box.style.display = "block";
 
-    else{
+            } else {
 
-        alert("Invalid admin username or password");
+                box.style.display = "none";
 
-    }
+            }
 
-};
+        };
 
-</script>
+
+        // =====================================
+        // ADMIN LOGIN
+        // =====================================
+
+        window.adminLogin = function () {
+
+            const username =
+                document
+                    .getElementById("adminUsername")
+                    .value
+                    .trim();
+
+
+            const password =
+                document
+                    .getElementById("adminPassword")
+                    .value;
+
+
+            // Admin credentials
+
+            const ADMIN_USERNAME = "admin";
+
+            const ADMIN_PASSWORD = "promptforge2026";
+
+
+            if (
+                username === ADMIN_USERNAME &&
+                password === ADMIN_PASSWORD
+            ) {
+
+                // Save admin session
+
+                localStorage.setItem(
+                    "admin",
+                    "true"
+                );
+
+
+                // Open admin dashboard
+
+                window.location.href =
+                    "admin.html";
+
+            }
+
+            else {
+
+                alert(
+                    "Invalid admin username or password"
+                );
+
+            }
+
+        };
+
+    </script>
 
 </body>
+
 </html>
