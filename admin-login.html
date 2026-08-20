@@ -1,11 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Login - Prompt Forge</title>
+    <link rel="stylesheet" href="style.css">
+</head>
 
-<!DOCTYPE html><html><head><title>Admin Login</title><link rel="stylesheet" href="style.css"></head>
-<body><div class="container"><h2>Admin Login</h2>
-<input id="email" placeholder="Admin email"><input id="pass" type="password" placeholder="Password">
-<button onclick="go()">Login</button><p id="msg"></p></div>
+<body>
+
+<div class="container">
+    <h2>🔐 Admin Login</h2>
+
+    <input
+        type="email"
+        id="email"
+        placeholder="Admin email"
+    >
+
+    <input
+        type="password"
+        id="pass"
+        placeholder="Password"
+    >
+
+    <button onclick="go()">Login</button>
+
+    <p id="msg"></p>
+</div>
+
 <script>
-function go(){
- if(document.getElementById('email').value==='admin@aiprompt.com' && document.getElementById('pass').value==='admin123') location='admin.html';
- else document.getElementById('msg').innerText='Invalid admin credentials';
+function go() {
+
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("pass").value;
+
+    const ADMIN_EMAIL = "admin@aiprompt.com";
+    const ADMIN_PASSWORD = "admin123";
+
+    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+
+        // Save admin login
+        localStorage.setItem("adminLoggedIn", "true");
+
+        // Open admin dashboard
+        window.location.href = "admin.html";
+
+    } else {
+
+        document.getElementById("msg").innerText =
+            "Invalid admin username or password";
+
+    }
 }
-</script></body></html>
+</script>
+
+</body>
+</html>
