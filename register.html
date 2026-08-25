@@ -1,42 +1,76 @@
 <!DOCTYPE html>
-
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>Prompt Forge | Participant Registration</title>
+
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body class="auth-page">
 
   <div class="auth-card">
 
-```
-<div class="auth-logo">⚡</div>
+    <div class="auth-logo">⚡</div>
 
-<h1>Prompt Forge</h1>
+    <h1>Prompt Forge</h1>
 
-<p>Participant Registration</p>
+    <p>Participant Registration</p>
 
-<input type="text" id="name" placeholder="Full Name" required>
+    <input
+      type="text"
+      id="name"
+      placeholder="Full Name"
+      required
+    >
 
-<input type="text" id="college" placeholder="College Name" required>
+    <input
+      type="text"
+      id="college"
+      placeholder="College Name"
+      required
+    >
 
-<input type="text" id="department" placeholder="Department" required>
+    <input
+      type="text"
+      id="department"
+      placeholder="Department"
+      required
+    >
 
-<input type="email" id="email" placeholder="Email Address" required>
+    <input
+      type="email"
+      id="email"
+      placeholder="Email Address"
+      required
+    >
 
-<input type="text" id="phone" placeholder="Phone Number" required>
+    <input
+      type="tel"
+      id="phone"
+      placeholder="Phone Number"
+      maxlength="10"
+      inputmode="numeric"
+      required
+    >
 
-<button class="btn btn-primary" onclick="registerUser()">Register Now</button>
+    <button
+      class="btn btn-primary"
+      onclick="registerUser()"
+    >
+      Register Now
+    </button>
 
-<p class="auth-link">
-  Already registered?
-  <a href="login.html">Login Here</a>
-</p>
-```
+    <p class="auth-link">
+      Already registered?
+      <a href="login.html">Login Here</a>
+    </p>
 
   </div>
+
 
   <script type="module">
 
@@ -50,58 +84,183 @@
       getDocs
     } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
-    window.registerUser = async function(){
 
-      const fullName = document.getElementById('name').value.trim();
-      const college = document.getElementById('college').value.trim();
-      const department = document.getElementById('department').value.trim();
-      const email = document.getElementById('email').value.trim().toLowerCase();
-      const phone = document.getElementById('phone').value.trim();
+    window.registerUser = async function () {
 
-      if(!fullName || !college || !department || !email || !phone){
+      // Get values
+      const fullName =
+        document.getElementById('name').value.trim();
+
+      const college =
+        document.getElementById('college').value.trim();
+
+      const department =
+        document.getElementById('department').value.trim();
+
+      const email =
+        document.getElementById('email').value.trim().toLowerCase();
+
+      const phone =
+        document.getElementById('phone').value.trim();
+
+
+      // ==========================================
+      // CHECK EMPTY FIELDS
+      // ==========================================
+
+      if (
+        !fullName ||
+        !college ||
+        !department ||
+        !email ||
+        !phone
+      ) {
+
         alert('Please fill all fields');
+
         return;
       }
 
-      try{
 
-        const q = query(
-          collection(db,'users'),
-          where('email','==',email)
+      // ==========================================
+      // GMAIL VALIDATION
+      // Only @gmail.com allowed
+      // ==========================================
+
+      const gmailPattern =
+        /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+
+
+      if (!gmailPattern.test(email)) {
+
+        alert(
+          'Invalid email! Please enter a valid @gmail.com email address.'
         );
 
-        const existing = await getDocs(q);
+        document.getElementById('email').focus();
 
-        if(!existing.empty){
+        return;
+      }
+
+
+      // ==========================================
+      // MOBILE NUMBER VALIDATION
+      // Exactly 10 digits
+      // ==========================================
+
+      const phonePattern =
+        /^[0-9]{10}$/;
+
+
+      if (!phonePattern.test(phone)) {
+
+        alert(
+          'Invalid mobile number! Please enter exactly 10 digits.'
+        );
+
+        document.getElementById('phone').focus();
+
+        return;
+      }
+
+
+      // ==========================================
+      // FIREBASE DATABASE
+      // ==========================================
+
+      try {
+
+        // Check whether email already exists
+
+        const q = query(
+          collection(db, 'users'),
+          where('email', '==', email)
+        );
+
+
+        const existing =
+          await getDocs(q);
+
+
+        if (!existing.empty) {
+
           alert('Email already registered');
+
           return;
         }
 
-        await addDoc(collection(db,'users'),{
-          fullName,
-          college,
-          department,
-          email,
-          phone,
-          emailApproved:false,
-          registeredAt:new Date().toLocaleString()
-        });
 
-        alert('Registration successful. Wait for admin approval.');
+        // ==========================================
+        // SAVE USER
+        // ==========================================
 
-        window.location.href = 'login.html';
+        await addDoc(
+          collection(db, 'users'),
+          {
+
+            fullName: fullName,
+
+            college: college,
+
+            department: department,
+
+            email: email,
+
+            phone: phone,
+
+            emailApproved: false,
+
+            registeredAt:
+              new Date().toLocaleString()
+
+          }
+        );
+
+
+        // ==========================================
+        // SUCCESS
+        // ==========================================
+
+        alert(
+          'Registration successful. Wait for admin approval.'
+        );
+
+
+        // Go to login page
+
+        window.location.href =
+          'login.html';
+
 
       }
 
-      catch(error){
+      catch (error) {
 
         console.error(error);
 
-        alert('Registration failed: ' + error.message);
+        alert(
+          'Registration failed: ' +
+          error.message
+        );
 
       }
 
     };
+
+
+    // ==========================================
+    // MOBILE INPUT
+    // Allow numbers only
+    // ==========================================
+
+    document
+      .getElementById('phone')
+      .addEventListener('input', function () {
+
+        this.value =
+          this.value.replace(/[^0-9]/g, '');
+
+      });
 
   </script>
 
