@@ -1,273 +1,367 @@
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
 
-    <meta charset="UTF-8">
+```
+<meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
 
-    <title>Prompt Forge | Participant Login</title>
+<title>Prompt Forge | Participant Login</title>
 
-    <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css">
+```
 
 </head>
 
-
 <body class="auth-page">
 
-    <div class="auth-card">
+```
+<div class="auth-card">
 
-        <!-- Logo -->
-        <div class="auth-logo">
-            ⚡
-        </div>
+    <!-- Logo -->
 
-
-        <!-- Heading -->
-        <h1>
-            Prompt Forge
-        </h1>
-
-
-        <p>
-            Participant Login
-        </p>
-
-
-        <!-- Participant Email -->
-        <input
-            type="email"
-            id="email"
-            placeholder="Registered Email Address"
-            autocomplete="email"
-            required
-        >
-
-
-        <!-- Login Button -->
-        <button
-            class="btn btn-primary"
-            id="loginBtn"
-            onclick="login()"
-        >
-            Enter Competition
-        </button>
-
-
-        <!-- Registration -->
-        <p class="auth-link">
-
-            Not registered?
-
-            <a href="register.html">
-                Register Here
-            </a>
-
-        </p>
-
+    <div class="auth-logo">
+        ⚡
     </div>
 
 
-    <!-- ==========================================
-         FIREBASE PARTICIPANT LOGIN
-    =========================================== -->
+    <!-- Heading -->
 
-    <script type="module">
+    <h1>
+        Prompt Forge
+    </h1>
 
-        import { db } from "./firebase.js";
 
+    <p>
+        Participant Login
+    </p>
 
-        import {
-            collection,
-            query,
-            where,
-            getDocs
-        }
-        from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+    <!-- Email -->
 
-        // ==========================================
-        // PARTICIPANT LOGIN
-        // ==========================================
+    <input
+        type="email"
+        id="email"
+        placeholder="Registered Email Address"
+        autocomplete="email"
+        required
+    >
 
-        window.login = async function () {
 
-            const emailInput =
-                document.getElementById("email");
+    <!-- Login -->
 
+    <button
+        class="btn btn-primary"
+        id="loginBtn"
+    >
+        Enter Competition
+    </button>
 
-            const loginBtn =
-                document.getElementById("loginBtn");
 
+    <!-- Registration -->
 
-            const email =
-                emailInput.value
-                    .trim()
-                    .toLowerCase();
+    <p class="auth-link">
 
+        Not registered?
 
-            // Empty email
+        <a href="register.html">
+            Register Here
+        </a>
 
-            if (!email) {
+    </p>
 
-                alert(
-                    "Enter your registered email"
-                );
 
-                emailInput.focus();
+    <!-- Admin -->
 
-                return;
-            }
+    <p class="auth-link">
 
+        <a href="admin-login.html">
+            Admin Login
+        </a>
 
-            loginBtn.disabled = true;
+    </p>
 
-            loginBtn.innerText =
-                "Checking...";
+</div>
+```
 
+<script type="module">
 
-            try {
+/* =====================================================
+   FIREBASE
+===================================================== */
 
-                // Find participant
+import { db } from "./firebase.js";
 
-                const q = query(
+import {
+    collection,
+    query,
+    where,
+    getDocs
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-                    collection(
-                        db,
-                        "users"
-                    ),
 
-                    where(
-                        "email",
-                        "==",
-                        email
-                    )
+/* =====================================================
+   ELEMENTS
+===================================================== */
 
-                );
+const emailInput =
+    document.getElementById("email");
 
+const loginBtn =
+    document.getElementById("loginBtn");
 
-                const snapshot =
-                    await getDocs(q);
 
+/* =====================================================
+   PARTICIPANT LOGIN
+===================================================== */
 
-                // Not registered
+async function loginParticipant() {
 
-                if (snapshot.empty) {
+    const email =
+        emailInput.value
+            .trim()
+            .toLowerCase();
 
-                    alert(
-                        "Email not registered"
-                    );
 
-                    return;
-                }
+    /* =================================================
+       VALIDATION
+    ================================================= */
 
+    if (!email) {
 
-                // Get participant data
-
-                const user =
-                    snapshot.docs[0].data();
-
-
-                // Check approval
-
-                if (
-                    user.emailApproved !== true
-                ) {
-
-                    alert(
-                        "Waiting for admin approval"
-                    );
-
-                    return;
-                }
-
-
-                // Save participant
-
-                localStorage.setItem(
-                    "currentUser",
-                    user.fullName || ""
-                );
-
-
-                localStorage.setItem(
-                    "currentEmail",
-                    user.email || email
-                );
-
-
-                // Enter competition
-
-                window.location.href =
-                    "battle.html";
-
-            }
-
-
-            catch (error) {
-
-                console.error(
-                    "Participant login error:",
-                    error
-                );
-
-
-                alert(
-                    "Login failed: " +
-                    error.message
-                );
-
-            }
-
-
-            finally {
-
-                loginBtn.disabled = false;
-
-                loginBtn.innerText =
-                    "Enter Competition";
-
-            }
-
-        };
-
-
-        // ==========================================
-        // HIDDEN ADMIN SHORTCUT
-        //
-        // CTRL + SHIFT + A
-        // ==========================================
-
-        document.addEventListener(
-            "keydown",
-            function (event) {
-
-                if (
-
-                    event.ctrlKey &&
-
-                    event.shiftKey &&
-
-                    event.key.toLowerCase() === "a"
-
-                ) {
-
-                    event.preventDefault();
-
-
-                    window.location.href =
-                        "admin-login.html";
-
-                }
-
-            }
+        alert(
+            "Enter your registered email"
         );
 
-    </script>
+        emailInput.focus();
+
+        return;
+
+    }
+
+
+    loginBtn.disabled = true;
+
+    loginBtn.innerText =
+        "Checking...";
+
+
+    try {
+
+        /* =============================================
+           FIND USER
+        ============================================= */
+
+        const q =
+            query(
+                collection(
+                    db,
+                    "users"
+                ),
+                where(
+                    "email",
+                    "==",
+                    email
+                )
+            );
+
+
+        const snapshot =
+            await getDocs(q);
+
+
+        /* =============================================
+           USER NOT FOUND
+        ============================================= */
+
+        if (snapshot.empty) {
+
+            alert(
+                "Email not registered"
+            );
+
+            return;
+
+        }
+
+
+        /* =============================================
+           GET USER
+        ============================================= */
+
+        const user =
+            snapshot.docs[0].data();
+
+
+        /* =============================================
+           CHECK APPROVAL
+        ============================================= */
+
+        if (
+            user.emailApproved !== true
+        ) {
+
+            alert(
+                "Waiting for admin approval"
+            );
+
+            return;
+
+        }
+
+
+        /* =============================================
+           CLEAR OLD SESSION
+        ============================================= */
+
+        localStorage.removeItem(
+            "submissionCompleted"
+        );
+
+        localStorage.removeItem(
+            "timerStart"
+        );
+
+
+        /* =============================================
+           SAVE PARTICIPANT
+        ============================================= */
+
+        localStorage.setItem(
+            "currentUser",
+            user.fullName || "Participant"
+        );
+
+
+        localStorage.setItem(
+            "currentEmail",
+            user.email || email
+        );
+
+
+        /* =============================================
+           START 20 MINUTE TIMER
+           
+           IMPORTANT:
+           Timer starts HERE when login succeeds.
+        ============================================= */
+
+        const timerStart =
+            Date.now();
+
+
+        localStorage.setItem(
+            "timerStart",
+            timerStart.toString()
+        );
+
+
+        /* =============================================
+           ENTER COMPETITION
+        ============================================= */
+
+        window.location.href =
+            "battle.html";
+
+    }
+
+
+    catch (error) {
+
+        console.error(
+            "Participant login error:",
+            error
+        );
+
+
+        alert(
+            "Login failed:\n\n" +
+            error.message
+        );
+
+    }
+
+
+    finally {
+
+        loginBtn.disabled = false;
+
+        loginBtn.innerText =
+            "Enter Competition";
+
+    }
+
+}
+
+
+/* =====================================================
+   LOGIN BUTTON
+===================================================== */
+
+loginBtn.addEventListener(
+    "click",
+    loginParticipant
+);
+
+
+/* =====================================================
+   ENTER KEY
+===================================================== */
+
+emailInput.addEventListener(
+    "keydown",
+    function(event) {
+
+        if (
+            event.key === "Enter"
+        ) {
+
+            event.preventDefault();
+
+            loginParticipant();
+
+        }
+
+    }
+);
+
+
+/* =====================================================
+   ADMIN SHORTCUT
+===================================================== */
+
+document.addEventListener(
+    "keydown",
+    function(event) {
+
+        if (
+
+            event.ctrlKey &&
+
+            event.shiftKey &&
+
+            event.key.toLowerCase() === "a"
+
+        ) {
+
+            event.preventDefault();
+
+            window.location.href =
+                "admin-login.html";
+
+        }
+
+    }
+);
+
+</script>
 
 </body>
 
