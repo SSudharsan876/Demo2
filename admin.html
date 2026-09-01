@@ -1,165 +1,238 @@
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
 
-    <meta charset="UTF-8">
+```
+<meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
 
-    <title>Prompt Forge | Admin Dashboard</title>
+<title>Prompt Forge | Admin Dashboard</title>
 
-    <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css">
+
+<style>
+
+    /* ================================
+       SUBMISSION CARD
+    ================================= */
+
+    .design-card {
+        margin-top: 20px;
+        background: #1e293b;
+        padding: 24px;
+        border-radius: 16px;
+        border: 1px solid #334155;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.20);
+    }
+
+    .design-card h3 {
+        margin-bottom: 15px;
+    }
+
+    .submission-info {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin-top: 15px;
+    }
+
+    .info-box {
+        background: #0f172a;
+        padding: 12px 15px;
+        border-radius: 10px;
+        border: 1px solid #334155;
+    }
+
+    .info-box span {
+        display: block;
+        font-size: 11px;
+        color: #94a3b8;
+        text-transform: uppercase;
+        margin-bottom: 5px;
+    }
+
+    .info-box strong {
+        color: white;
+        font-size: 15px;
+    }
+
+    .time-used {
+        color: #facc15 !important;
+        font-size: 17px !important;
+    }
+
+    .design-image {
+        width: 300px;
+        max-width: 100%;
+        max-height: 400px;
+        object-fit: contain;
+        border-radius: 12px;
+        display: block;
+        margin-top: 20px;
+        background: #020617;
+    }
+
+    .submission-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 15px;
+    }
+
+    .submission-actions .btn {
+        margin-top: 0;
+    }
+
+    @media (max-width: 700px) {
+
+        .submission-info {
+            grid-template-columns: 1fr;
+        }
+
+    }
+
+</style>
+```
 
 </head>
-
 
 <body>
 
 <div class="container">
 
+```
+<!-- ==========================================
+     HEADER
+=========================================== -->
 
-    <!-- ==========================================
-         HEADER
-    =========================================== -->
+<div class="workspace-header">
 
-    <div class="workspace-header">
+    <div>
 
-        <div>
+        <span class="badge">
+            Admin Panel
+        </span>
 
-            <span class="badge">
-                Admin Panel
-            </span>
-
-            <h1>
-                Prompt Forge Dashboard
-            </h1>
-
-            <p>
-                Approve participants and review
-                submitted AI designs.
-            </p>
-
-            <p id="adminEmail"
-               style="font-size:14px;">
-            </p>
-
-        </div>
-
-
-        <div style="display:flex; gap:10px;">
-
-            <button
-                id="refreshBtn"
-                class="btn btn-primary"
-            >
-                Refresh Data
-            </button>
-
-            <button
-                id="logoutBtn"
-                class="btn btn-danger"
-            >
-                Logout
-            </button>
-
-        </div>
-
-    </div>
-
-
-    <hr>
-
-
-    <!-- ==========================================
-         PARTICIPANT APPROVAL
-    =========================================== -->
-
-    <h2>
-        Participant Approval
-    </h2>
-
-
-    <div class="table-wrapper">
-
-        <table>
-
-            <thead>
-
-                <tr>
-
-                    <th>
-                        Name
-                    </th>
-
-                    <th>
-                        College
-                    </th>
-
-                    <th>
-                        Department
-                    </th>
-
-                    <th>
-                        Email
-                    </th>
-
-                    <th>
-                        Status
-                    </th>
-
-                    <th>
-                        Action
-                    </th>
-
-                </tr>
-
-            </thead>
-
-
-            <tbody id="table">
-
-                <tr>
-
-                    <td colspan="6">
-                        Loading participants...
-                    </td>
-
-                </tr>
-
-            </tbody>
-
-        </table>
-
-    </div>
-
-
-    <hr>
-
-
-    <!-- ==========================================
-         SUBMITTED DESIGNS
-    =========================================== -->
-
-    <h2>
-        Submitted Designs
-    </h2>
-
-
-    <div id="submissions">
+        <h1>
+            Prompt Forge Dashboard
+        </h1>
 
         <p>
-            Loading submissions...
+            Approve participants and review
+            submitted AI designs.
         </p>
+
+        <p
+            id="adminEmail"
+            style="font-size:14px;"
+        ></p>
 
     </div>
 
+
+    <div style="display:flex; gap:10px;">
+
+        <button
+            id="refreshBtn"
+            class="btn btn-primary"
+        >
+            Refresh Data
+        </button>
+
+        <button
+            id="logoutBtn"
+            class="btn btn-danger"
+        >
+            Logout
+        </button>
+
+    </div>
 
 </div>
 
+
+<hr>
+
+
+<!-- ==========================================
+     PARTICIPANT APPROVAL
+=========================================== -->
+
+<h2>
+    Participant Approval
+</h2>
+
+
+<div class="table-wrapper">
+
+    <table>
+
+        <thead>
+
+            <tr>
+
+                <th>Name</th>
+
+                <th>College</th>
+
+                <th>Department</th>
+
+                <th>Email</th>
+
+                <th>Status</th>
+
+                <th>Action</th>
+
+            </tr>
+
+        </thead>
+
+
+        <tbody id="table">
+
+            <tr>
+
+                <td colspan="6">
+                    Loading participants...
+                </td>
+
+            </tr>
+
+        </tbody>
+
+    </table>
+
+</div>
+
+
+<hr>
+
+
+<!-- ==========================================
+     SUBMITTED DESIGNS
+=========================================== -->
+
+<h2>
+    Submitted Designs
+</h2>
+
+
+<div id="submissions">
+
+    <p>
+        Loading submissions...
+    </p>
+
+</div>
+```
+
+</div>
 
 <!-- ==========================================
      FIREBASE
@@ -212,27 +285,19 @@
 
 
     const submissions =
-        document.getElementById(
-            "submissions"
-        );
+        document.getElementById("submissions");
 
 
     const refreshBtn =
-        document.getElementById(
-            "refreshBtn"
-        );
+        document.getElementById("refreshBtn");
 
 
     const logoutBtn =
-        document.getElementById(
-            "logoutBtn"
-        );
+        document.getElementById("logoutBtn");
 
 
     const adminEmail =
-        document.getElementById(
-            "adminEmail"
-        );
+        document.getElementById("adminEmail");
 
 
     // ==========================================
@@ -242,7 +307,6 @@
     onAuthStateChanged(
         auth,
         async function(user) {
-
 
             // No Firebase user
 
@@ -300,7 +364,6 @@
 
     async function loadUsers() {
 
-
         table.innerHTML = `
 
             <tr>
@@ -316,7 +379,6 @@
 
         try {
 
-
             const snapshot =
                 await getDocs(
                     collection(
@@ -328,8 +390,6 @@
 
             table.innerHTML = "";
 
-
-            // No users
 
             if (
                 snapshot.empty
@@ -357,7 +417,6 @@
 
             snapshot.forEach(
                 function(userDoc) {
-
 
                     const u =
                         userDoc.data();
@@ -447,9 +506,7 @@
                     `;
 
 
-                    table.appendChild(
-                        row
-                    );
+                    table.appendChild(row);
 
                 }
             );
@@ -466,11 +523,9 @@
                 .forEach(
                     function(button) {
 
-
                         button.addEventListener(
                             "click",
                             async function() {
-
 
                                 const id =
                                     button.getAttribute(
@@ -487,7 +542,6 @@
 
 
                                 try {
-
 
                                     await updateDoc(
 
@@ -507,11 +561,9 @@
 
                                     await loadUsers();
 
-
                                 }
 
                                 catch(error) {
-
 
                                     console.error(
                                         error
@@ -542,7 +594,6 @@
 
 
         catch(error) {
-
 
             console.error(
                 "Users error:",
@@ -581,7 +632,6 @@
 
     async function loadSubmissions() {
 
-
         submissions.innerHTML = `
 
             <p>
@@ -592,7 +642,6 @@
 
 
         try {
-
 
             const snapshot =
                 await getDocs(
@@ -606,7 +655,9 @@
             submissions.innerHTML = "";
 
 
-            // No submissions
+            // ==================================
+            // NO SUBMISSIONS
+            // ==================================
 
             if (
                 snapshot.empty
@@ -625,9 +676,12 @@
             }
 
 
+            // ==================================
+            // DISPLAY SUBMISSIONS
+            // ==================================
+
             snapshot.forEach(
                 function(designDoc) {
-
 
                     const d =
                         designDoc.data();
@@ -643,18 +697,47 @@
                         "design-card";
 
 
-                    card.style.cssText = `
+                    // ==================================
+                    // TIME USED
+                    // ==================================
 
-                        margin-top:20px;
+                    let timeUsed =
+                        d.timeUsed || "Not recorded";
 
-                        background:#334155;
 
-                        padding:20px;
+                    // If old submission only has
+                    // timeUsedSeconds
 
-                        border-radius:12px;
+                    if (
+                        !d.timeUsed &&
+                        typeof d.timeUsedSeconds === "number"
+                    ) {
 
-                    `;
+                        const totalSeconds =
+                            d.timeUsedSeconds;
 
+
+                        const minutes =
+                            Math.floor(
+                                totalSeconds / 60
+                            );
+
+
+                        const seconds =
+                            totalSeconds % 60;
+
+
+                        timeUsed =
+                            `${minutes} min ${String(
+                                seconds
+                            ).padStart(2, "0")} sec`;
+
+                    }
+
+
+                    // ==================================
+                    // CARD HTML
+                    // ==================================
 
                     card.innerHTML = `
 
@@ -668,37 +751,101 @@
                         </h3>
 
 
-                        <p>
+                        <div class="submission-info">
 
-                            <b>Email:</b>
+                            <div class="info-box">
 
-                            ${escapeHTML(
-                                d.email || ""
-                            )}
+                                <span>
+                                    Email
+                                </span>
 
-                        </p>
+                                <strong>
+                                    ${escapeHTML(
+                                        d.email || "-"
+                                    )}
+                                </strong>
 
-
-                        <p>
-
-                            <b>Prompt:</b>
-
-                            ${escapeHTML(
-                                d.prompt || ""
-                            )}
-
-                        </p>
+                            </div>
 
 
-                        <p>
+                            <div class="info-box">
 
-                            <b>Submitted:</b>
+                                <span>
+                                    Time Used
+                                </span>
 
-                            ${escapeHTML(
-                                d.submittedAt || ""
-                            )}
+                                <strong class="time-used">
 
-                        </p>
+                                    ⏱️
+                                    ${escapeHTML(
+                                        timeUsed
+                                    )}
+
+                                </strong>
+
+                            </div>
+
+
+                            <div class="info-box">
+
+                                <span>
+                                    Submitted
+                                </span>
+
+                                <strong>
+
+                                    ${escapeHTML(
+                                        formatDate(
+                                            d.submittedAt
+                                        )
+                                    )}
+
+                                </strong>
+
+                            </div>
+
+
+                            <div class="info-box">
+
+                                <span>
+                                    Status
+                                </span>
+
+                                <strong>
+
+                                    ${escapeHTML(
+                                        d.status ||
+                                        "Submitted"
+                                    )}
+
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+                        <div style="margin-top:20px;">
+
+                            <strong>
+                                Design Prompt
+                            </strong>
+
+                            <p
+                                style="
+                                    margin-top:8px;
+                                    color:#cbd5e1;
+                                    line-height:1.6;
+                                "
+                            >
+
+                                ${escapeHTML(
+                                    d.prompt || "-"
+                                )}
+
+                            </p>
+
+                        </div>
 
 
                         <img
@@ -707,52 +854,45 @@
                                 d.image || ""
                             )}"
 
-                            style="
-                                width:300px;
-                                max-width:100%;
-                                border-radius:10px;
-                                display:block;
-                                margin-top:15px;
-                            "
+                            class="design-image"
 
                             alt="Submitted Design"
 
                         >
 
 
-                        <br>
+                        <div class="submission-actions">
 
+                            <a
+                                href="${escapeAttribute(
+                                    d.image || ""
+                                )}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
 
-                        <a
-                            href="${escapeAttribute(
-                                d.image || ""
-                            )}"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
+                                <button
+                                    class="btn btn-secondary"
+                                >
+                                    View Design
+                                </button>
+
+                            </a>
+
 
                             <button
-                                class="btn btn-secondary"
+
+                                class="btn btn-danger delete-btn"
+
+                                data-id="${designDoc.id}"
+
                             >
-                                View Design
+
+                                Delete
+
                             </button>
 
-                        </a>
-
-
-                        <button
-
-                            class="btn btn-danger delete-btn"
-
-                            data-id="${designDoc.id}"
-
-                            style="margin-left:10px;"
-
-                        >
-
-                            Delete
-
-                        </button>
+                        </div>
 
                     `;
 
@@ -776,11 +916,9 @@
                 .forEach(
                     function(button) {
 
-
                         button.addEventListener(
                             "click",
                             async function() {
-
 
                                 const id =
                                     button.getAttribute(
@@ -811,7 +949,6 @@
 
                                 try {
 
-
                                     await deleteDoc(
 
                                         doc(
@@ -825,11 +962,9 @@
 
                                     await loadSubmissions();
 
-
                                 }
 
                                 catch(error) {
-
 
                                     console.error(
                                         error
@@ -861,7 +996,6 @@
 
         catch(error) {
 
-
             console.error(
                 "Submissions error:",
                 error
@@ -890,11 +1024,38 @@
 
 
     // ==========================================
+    // FORMAT DATE
+    // ==========================================
+
+    function formatDate(value) {
+
+        if (!value) {
+            return "-";
+        }
+
+
+        try {
+
+            return new Date(
+                value
+            ).toLocaleString();
+
+        }
+
+        catch {
+
+            return value;
+
+        }
+
+    }
+
+
+    // ==========================================
     // REFRESH DATA
     // ==========================================
 
     async function refreshData() {
-
 
         refreshBtn.disabled =
             true;
@@ -905,7 +1066,6 @@
 
 
         try {
-
 
             await Promise.all([
 
@@ -918,7 +1078,6 @@
         }
 
         finally {
-
 
             refreshBtn.disabled =
                 false;
@@ -950,7 +1109,6 @@
         "click",
         async function() {
 
-
             const ok =
                 confirm(
                     "Logout from admin dashboard?"
@@ -965,7 +1123,6 @@
 
 
             try {
-
 
                 await signOut(auth);
 
@@ -987,7 +1144,6 @@
 
 
             catch(error) {
-
 
                 console.error(
                     "Logout error:",
@@ -1056,7 +1212,6 @@
             );
 
     }
-
 
 </script>
 
