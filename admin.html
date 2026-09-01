@@ -1,238 +1,311 @@
 <!DOCTYPE html>
-
 <html lang="en">
 
 <head>
 
-```
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
 
-<meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
->
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-<title>Prompt Forge | Admin Dashboard</title>
+    <title>Prompt Forge | Admin Dashboard</title>
 
-<link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css">
 
-<style>
+    <style>
 
-    /* ================================
-       SUBMISSION CARD
-    ================================= */
+        /* ==========================================
+           SUBMISSION CARD
+        ========================================== */
 
-    .design-card {
-        margin-top: 20px;
-        background: #1e293b;
-        padding: 24px;
-        border-radius: 16px;
-        border: 1px solid #334155;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.20);
-    }
-
-    .design-card h3 {
-        margin-bottom: 15px;
-    }
-
-    .submission-info {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
-        margin-top: 15px;
-    }
-
-    .info-box {
-        background: #0f172a;
-        padding: 12px 15px;
-        border-radius: 10px;
-        border: 1px solid #334155;
-    }
-
-    .info-box span {
-        display: block;
-        font-size: 11px;
-        color: #94a3b8;
-        text-transform: uppercase;
-        margin-bottom: 5px;
-    }
-
-    .info-box strong {
-        color: white;
-        font-size: 15px;
-    }
-
-    .time-used {
-        color: #facc15 !important;
-        font-size: 17px !important;
-    }
-
-    .design-image {
-        width: 300px;
-        max-width: 100%;
-        max-height: 400px;
-        object-fit: contain;
-        border-radius: 12px;
-        display: block;
-        margin-top: 20px;
-        background: #020617;
-    }
-
-    .submission-actions {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-        margin-top: 15px;
-    }
-
-    .submission-actions .btn {
-        margin-top: 0;
-    }
-
-    @media (max-width: 700px) {
-
-        .submission-info {
-            grid-template-columns: 1fr;
+        .design-card {
+            margin-top: 20px;
+            background: #1e293b;
+            padding: 24px;
+            border-radius: 16px;
+            border: 1px solid #334155;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.20);
         }
 
-    }
+        .design-card h3 {
+            margin-bottom: 15px;
+        }
 
-</style>
-```
+
+        /* ==========================================
+           SUBMISSION INFORMATION
+        ========================================== */
+
+        .submission-info {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .info-box {
+            background: #0f172a;
+            padding: 12px 15px;
+            border-radius: 10px;
+            border: 1px solid #334155;
+            overflow-wrap: anywhere;
+        }
+
+        .info-box span {
+            display: block;
+            font-size: 11px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            letter-spacing: 0.5px;
+        }
+
+        .info-box strong {
+            color: white;
+            font-size: 15px;
+        }
+
+
+        /* ==========================================
+           TIME
+        ========================================== */
+
+        .time-used {
+            color: #facc15 !important;
+            font-size: 17px !important;
+        }
+
+
+        /* ==========================================
+           SUBMITTED DATE
+        ========================================== */
+
+        .submitted-date {
+            color: #93c5fd !important;
+        }
+
+
+        /* ==========================================
+           DESIGN IMAGE
+        ========================================== */
+
+        .design-image {
+            width: 300px;
+            max-width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+            border-radius: 12px;
+            display: block;
+            margin-top: 20px;
+            background: #020617;
+            border: 1px solid #334155;
+        }
+
+
+        /* ==========================================
+           ACTION BUTTONS
+        ========================================== */
+
+        .submission-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .submission-actions .btn {
+            margin-top: 0;
+        }
+
+
+        /* ==========================================
+           EMPTY / ERROR MESSAGE
+        ========================================== */
+
+        .empty-message {
+            margin-top: 20px;
+            padding: 20px;
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            color: #cbd5e1;
+        }
+
+        .error-message {
+            color: #fca5a5;
+        }
+
+
+        /* ==========================================
+           STATUS
+        ========================================== */
+
+        .status-approved {
+            color: #4ade80 !important;
+        }
+
+        .status-pending {
+            color: #facc15 !important;
+        }
+
+
+        /* ==========================================
+           RESPONSIVE
+        ========================================== */
+
+        @media (max-width: 700px) {
+
+            .submission-info {
+                grid-template-columns: 1fr;
+            }
+
+            .design-card {
+                padding: 18px;
+            }
+
+        }
+
+    </style>
 
 </head>
+
 
 <body>
 
 <div class="container">
 
-```
-<!-- ==========================================
-     HEADER
-=========================================== -->
 
-<div class="workspace-header">
+    <!-- ==========================================
+         HEADER
+    =========================================== -->
 
-    <div>
+    <div class="workspace-header">
 
-        <span class="badge">
-            Admin Panel
-        </span>
+        <div>
 
-        <h1>
-            Prompt Forge Dashboard
-        </h1>
+            <span class="badge">
+                Admin Panel
+            </span>
+
+            <h1>
+                Prompt Forge Dashboard
+            </h1>
+
+            <p>
+                Approve participants and review
+                submitted AI designs.
+            </p>
+
+            <p
+                id="adminEmail"
+                style="font-size:14px;"
+            ></p>
+
+        </div>
+
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+
+            <button
+                id="refreshBtn"
+                class="btn btn-primary"
+                type="button"
+            >
+                Refresh Data
+            </button>
+
+            <button
+                id="logoutBtn"
+                class="btn btn-danger"
+                type="button"
+            >
+                Logout
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <hr>
+
+
+    <!-- ==========================================
+         PARTICIPANT APPROVAL
+    =========================================== -->
+
+    <h2>
+        Participant Approval
+    </h2>
+
+
+    <div class="table-wrapper">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Name</th>
+
+                    <th>College</th>
+
+                    <th>Department</th>
+
+                    <th>Email</th>
+
+                    <th>Status</th>
+
+                    <th>Action</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody id="table">
+
+                <tr>
+
+                    <td colspan="6">
+                        Loading participants...
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    <hr>
+
+
+    <!-- ==========================================
+         SUBMITTED DESIGNS
+    =========================================== -->
+
+    <h2>
+        Submitted Designs
+    </h2>
+
+
+    <div id="submissions">
 
         <p>
-            Approve participants and review
-            submitted AI designs.
+            Loading submissions...
         </p>
 
-        <p
-            id="adminEmail"
-            style="font-size:14px;"
-        ></p>
-
     </div>
 
 
-    <div style="display:flex; gap:10px;">
-
-        <button
-            id="refreshBtn"
-            class="btn btn-primary"
-        >
-            Refresh Data
-        </button>
-
-        <button
-            id="logoutBtn"
-            class="btn btn-danger"
-        >
-            Logout
-        </button>
-
-    </div>
-
 </div>
 
-
-<hr>
-
-
-<!-- ==========================================
-     PARTICIPANT APPROVAL
-=========================================== -->
-
-<h2>
-    Participant Approval
-</h2>
-
-
-<div class="table-wrapper">
-
-    <table>
-
-        <thead>
-
-            <tr>
-
-                <th>Name</th>
-
-                <th>College</th>
-
-                <th>Department</th>
-
-                <th>Email</th>
-
-                <th>Status</th>
-
-                <th>Action</th>
-
-            </tr>
-
-        </thead>
-
-
-        <tbody id="table">
-
-            <tr>
-
-                <td colspan="6">
-                    Loading participants...
-                </td>
-
-            </tr>
-
-        </tbody>
-
-    </table>
-
-</div>
-
-
-<hr>
-
-
-<!-- ==========================================
-     SUBMITTED DESIGNS
-=========================================== -->
-
-<h2>
-    Submitted Designs
-</h2>
-
-
-<div id="submissions">
-
-    <p>
-        Loading submissions...
-    </p>
-
-</div>
-```
-
-</div>
 
 <!-- ==========================================
      FIREBASE
@@ -308,7 +381,7 @@
         auth,
         async function(user) {
 
-            // No Firebase user
+            // No logged-in user
 
             if (!user) {
 
@@ -323,8 +396,7 @@
             // Check admin email
 
             if (
-                user.email !==
-                ADMIN_EMAIL
+                user.email !== ADMIN_EMAIL
             ) {
 
                 alert(
@@ -332,7 +404,20 @@
                 );
 
 
-                await signOut(auth);
+                try {
+
+                    await signOut(auth);
+
+                }
+
+                catch(error) {
+
+                    console.error(
+                        "Sign out error:",
+                        error
+                    );
+
+                }
 
 
                 window.location.href =
@@ -343,7 +428,7 @@
             }
 
 
-            // Show admin email
+            // Display admin email
 
             adminEmail.innerText =
                 "Logged in as: " +
@@ -391,6 +476,8 @@
             table.innerHTML = "";
 
 
+            // No users
+
             if (
                 snapshot.empty
             ) {
@@ -415,6 +502,10 @@
             }
 
 
+            // ==================================
+            // DISPLAY USERS
+            // ==================================
+
             snapshot.forEach(
                 function(userDoc) {
 
@@ -436,39 +527,49 @@
 
                         <td>
                             ${escapeHTML(
-                                u.fullName || ""
+                                u.fullName || "-"
                             )}
                         </td>
 
 
                         <td>
                             ${escapeHTML(
-                                u.college || ""
+                                u.college || "-"
                             )}
                         </td>
 
 
                         <td>
                             ${escapeHTML(
-                                u.department || ""
+                                u.department || "-"
                             )}
                         </td>
 
 
                         <td>
                             ${escapeHTML(
-                                u.email || ""
+                                u.email || "-"
                             )}
                         </td>
 
 
                         <td>
 
-                            ${
-                                approved
-                                ? "Approved"
-                                : "Pending"
-                            }
+                            <span
+                                class="${
+                                    approved
+                                    ? "status-approved"
+                                    : "status-pending"
+                                }"
+                            >
+
+                                ${
+                                    approved
+                                    ? "Approved"
+                                    : "Pending"
+                                }
+
+                            </span>
 
                         </td>
 
@@ -484,6 +585,7 @@
                                 <button
                                     class="btn btn-secondary"
                                     disabled
+                                    type="button"
                                 >
                                     Approved
                                 </button>
@@ -494,7 +596,10 @@
                                 `
                                 <button
                                     class="btn btn-primary approve-btn"
-                                    data-id="${userDoc.id}"
+                                    data-id="${escapeAttribute(
+                                        userDoc.id
+                                    )}"
+                                    type="button"
                                 >
                                     Approve
                                 </button>
@@ -506,7 +611,9 @@
                     `;
 
 
-                    table.appendChild(row);
+                    table.appendChild(
+                        row
+                    );
 
                 }
             );
@@ -531,6 +638,13 @@
                                     button.getAttribute(
                                         "data-id"
                                     );
+
+
+                                if (!id) {
+
+                                    return;
+
+                                }
 
 
                                 button.disabled =
@@ -566,6 +680,7 @@
                                 catch(error) {
 
                                     console.error(
+                                        "Approval error:",
                                         error
                                     );
 
@@ -612,7 +727,8 @@
                         <br><br>
 
                         ${escapeHTML(
-                            error.message
+                            error.message ||
+                            "Unknown error"
                         )}
 
                     </td>
@@ -665,9 +781,11 @@
 
                 submissions.innerHTML = `
 
-                    <p>
+                    <div class="empty-message">
+
                         No designs submitted yet.
-                    </p>
+
+                    </div>
 
                 `;
 
@@ -698,14 +816,53 @@
 
 
                     // ==================================
+                    // PARTICIPANT NAME
+                    // ==================================
+
+                    const participant =
+                        d.participant ||
+                        d.fullName ||
+                        d.name ||
+                        "Participant";
+
+
+                    // ==================================
+                    // EMAIL
+                    // ==================================
+
+                    const email =
+                        d.email ||
+                        "-";
+
+
+                    // ==================================
+                    // PROMPT
+                    // ==================================
+
+                    const prompt =
+                        d.prompt ||
+                        "-";
+
+
+                    // ==================================
+                    // STATUS
+                    // ==================================
+
+                    const status =
+                        d.status ||
+                        "Submitted";
+
+
+                    // ==================================
                     // TIME USED
                     // ==================================
 
                     let timeUsed =
-                        d.timeUsed || "Not recorded";
+                        d.timeUsed ||
+                        "Not recorded";
 
 
-                    // If old submission only has
+                    // Old submission:
                     // timeUsedSeconds
 
                     if (
@@ -714,7 +871,12 @@
                     ) {
 
                         const totalSeconds =
-                            d.timeUsedSeconds;
+                            Math.max(
+                                0,
+                                Math.floor(
+                                    d.timeUsedSeconds
+                                )
+                            );
 
 
                         const minutes =
@@ -736,6 +898,30 @@
 
 
                     // ==================================
+                    // IMAGE
+                    // ==================================
+
+                    const image =
+                        d.image ||
+                        d.imageUrl ||
+                        d.designImage ||
+                        "";
+
+
+                    // ==================================
+                    // SUBMITTED DATE
+                    // ==================================
+
+                    const submittedDate =
+                        formatDate(
+                            d.submittedAt ||
+                            d.createdAt ||
+                            d.timestamp ||
+                            d.submittedDate
+                        );
+
+
+                    // ==================================
                     // CARD HTML
                     // ==================================
 
@@ -744,14 +930,16 @@
                         <h3>
 
                             ${escapeHTML(
-                                d.participant ||
-                                "Participant"
+                                participant
                             )}
 
                         </h3>
 
 
                         <div class="submission-info">
+
+
+                            <!-- EMAIL -->
 
                             <div class="info-box">
 
@@ -761,12 +949,14 @@
 
                                 <strong>
                                     ${escapeHTML(
-                                        d.email || "-"
+                                        email
                                     )}
                                 </strong>
 
                             </div>
 
+
+                            <!-- TIME USED -->
 
                             <div class="info-box">
 
@@ -774,7 +964,9 @@
                                     Time Used
                                 </span>
 
-                                <strong class="time-used">
+                                <strong
+                                    class="time-used"
+                                >
 
                                     ⏱️
                                     ${escapeHTML(
@@ -786,24 +978,29 @@
                             </div>
 
 
+                            <!-- SUBMITTED -->
+
                             <div class="info-box">
 
                                 <span>
                                     Submitted
                                 </span>
 
-                                <strong>
+                                <strong
+                                    class="submitted-date"
+                                >
 
+                                    📅
                                     ${escapeHTML(
-                                        formatDate(
-                                            d.submittedAt
-                                        )
+                                        submittedDate
                                     )}
 
                                 </strong>
 
                             </div>
 
+
+                            <!-- STATUS -->
 
                             <div class="info-box">
 
@@ -814,33 +1011,41 @@
                                 <strong>
 
                                     ${escapeHTML(
-                                        d.status ||
-                                        "Submitted"
+                                        status
                                     )}
 
                                 </strong>
 
                             </div>
 
+
                         </div>
 
 
-                        <div style="margin-top:20px;">
+                        <!-- ==================================
+                             DESIGN PROMPT
+                        =================================== -->
+
+                        <div
+                            style="margin-top:20px;"
+                        >
 
                             <strong>
                                 Design Prompt
                             </strong>
+
 
                             <p
                                 style="
                                     margin-top:8px;
                                     color:#cbd5e1;
                                     line-height:1.6;
+                                    white-space:pre-wrap;
                                 "
                             >
 
                                 ${escapeHTML(
-                                    d.prompt || "-"
+                                    prompt
                                 )}
 
                             </p>
@@ -848,49 +1053,122 @@
                         </div>
 
 
-                        <img
+                        <!-- ==================================
+                             DESIGN IMAGE
+                        =================================== -->
 
-                            src="${escapeAttribute(
-                                d.image || ""
-                            )}"
+                        ${
+                            image
 
-                            class="design-image"
+                            ?
 
-                            alt="Submitted Design"
+                            `
 
-                        >
+                            <img
 
+                                src="${escapeAttribute(
+                                    image
+                                )}"
+
+                                class="design-image"
+
+                                alt="Submitted Design"
+
+                                loading="lazy"
+
+                                onerror="
+                                    this.style.display='none';
+                                    this.nextElementSibling.style.display='block';
+                                "
+
+                            >
+
+                            <p
+                                style="
+                                    display:none;
+                                    color:#fca5a5;
+                                    margin-top:15px;
+                                "
+                            >
+                                Unable to load submitted design.
+                            </p>
+
+                            `
+
+                            :
+
+                            `
+
+                            <p
+                                style="
+                                    margin-top:20px;
+                                    color:#94a3b8;
+                                "
+                            >
+                                No design image available.
+                            </p>
+
+                            `
+
+                        }
+
+
+                        <!-- ==================================
+                             ACTIONS
+                        =================================== -->
 
                         <div class="submission-actions">
 
-                            <a
-                                href="${escapeAttribute(
-                                    d.image || ""
-                                )}"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                            >
 
-                                <button
-                                    class="btn btn-secondary"
+                            ${
+                                image
+
+                                ?
+
+                                `
+
+                                <a
+                                    href="${escapeAttribute(
+                                        image
+                                    )}"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                 >
-                                    View Design
-                                </button>
 
-                            </a>
+                                    <button
+                                        class="btn btn-secondary"
+                                        type="button"
+                                    >
+                                        View Design
+                                    </button>
+
+                                </a>
+
+                                `
+
+                                :
+
+                                ""
+
+                            }
 
 
                             <button
 
                                 class="btn btn-danger delete-btn"
 
-                                data-id="${designDoc.id}"
+                                data-id="${escapeAttribute(
+                                    designDoc.id
+                                )}"
+
+                                type="button"
 
                             >
 
                                 Delete
 
                             </button>
+
 
                         </div>
 
@@ -924,6 +1202,13 @@
                                     button.getAttribute(
                                         "data-id"
                                     );
+
+
+                                if (!id) {
+
+                                    return;
+
+                                }
 
 
                                 const ok =
@@ -967,6 +1252,7 @@
                                 catch(error) {
 
                                     console.error(
+                                        "Delete error:",
                                         error
                                     );
 
@@ -1004,17 +1290,20 @@
 
             submissions.innerHTML = `
 
-                <p>
+                <div
+                    class="empty-message error-message"
+                >
 
                     Failed to load submissions.
 
                     <br><br>
 
                     ${escapeHTML(
-                        error.message
+                        error.message ||
+                        "Unknown error"
                     )}
 
-                </p>
+                </div>
 
             `;
 
@@ -1025,26 +1314,207 @@
 
     // ==========================================
     // FORMAT DATE
+    //
+    // Supports:
+    // 1. Firestore Timestamp
+    // 2. Firestore Timestamp-like object
+    // 3. JavaScript Date
+    // 4. Unix milliseconds
+    // 5. Unix seconds
+    // 6. Date strings
     // ==========================================
 
     function formatDate(value) {
 
-        if (!value) {
+        // Empty value
+
+        if (
+            value === null ||
+            value === undefined ||
+            value === ""
+        ) {
+
             return "-";
+
         }
 
 
         try {
 
-            return new Date(
-                value
-            ).toLocaleString();
+            let date = null;
+
+
+            // ======================================
+            // FIRESTORE TIMESTAMP
+            // ======================================
+
+            if (
+                value &&
+                typeof value.toDate === "function"
+            ) {
+
+                date =
+                    value.toDate();
+
+            }
+
+
+            // ======================================
+            // FIRESTORE TIMESTAMP-LIKE OBJECT
+            //
+            // Example:
+            // {
+            //    seconds: 1234567890,
+            //    nanoseconds: 123456789
+            // }
+            // ======================================
+
+            else if (
+                value &&
+                typeof value.seconds === "number"
+            ) {
+
+                date =
+                    new Date(
+                        value.seconds * 1000
+                    );
+
+            }
+
+
+            // ======================================
+            // JAVASCRIPT DATE
+            // ======================================
+
+            else if (
+                value instanceof Date
+            ) {
+
+                date =
+                    value;
+
+            }
+
+
+            // ======================================
+            // NUMBER
+            // ======================================
+
+            else if (
+                typeof value === "number"
+            ) {
+
+                // Seconds timestamp
+                // Example: 1750000000
+
+                if (
+                    value < 10000000000
+                ) {
+
+                    date =
+                        new Date(
+                            value * 1000
+                        );
+
+                }
+
+                // Milliseconds timestamp
+
+                else {
+
+                    date =
+                        new Date(
+                            value
+                        );
+
+                }
+
+            }
+
+
+            // ======================================
+            // STRING
+            // ======================================
+
+            else if (
+                typeof value === "string"
+            ) {
+
+                const trimmed =
+                    value.trim();
+
+
+                if (!trimmed) {
+
+                    return "-";
+
+                }
+
+
+                date =
+                    new Date(
+                        trimmed
+                    );
+
+            }
+
+
+            // ======================================
+            // UNKNOWN TYPE
+            // ======================================
+
+            else {
+
+                return "-";
+
+            }
+
+
+            // ======================================
+            // INVALID DATE CHECK
+            // ======================================
+
+            if (
+                !date ||
+                isNaN(
+                    date.getTime()
+                )
+            ) {
+
+                return "-";
+
+            }
+
+
+            // ======================================
+            // FORMAT DATE
+            // ======================================
+
+            return date.toLocaleString(
+                "en-IN",
+                {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    second: "2-digit",
+                    hour12: true
+                }
+            );
 
         }
 
-        catch {
+        catch(error) {
 
-            return value;
+            console.error(
+                "Date formatting error:",
+                error,
+                value
+            );
+
+
+            return "-";
 
         }
 
@@ -1074,6 +1544,15 @@
                 loadSubmissions()
 
             ]);
+
+        }
+
+        catch(error) {
+
+            console.error(
+                "Refresh error:",
+                error
+            );
 
         }
 
@@ -1124,7 +1603,9 @@
 
             try {
 
-                await signOut(auth);
+                await signOut(
+                    auth
+                );
 
 
                 localStorage.removeItem(
@@ -1162,59 +1643,84 @@
 
 
     // ==========================================
-    // SECURITY HELPERS
+    // SECURITY HELPER
     // ==========================================
 
     function escapeHTML(value) {
 
-        return String(value)
+        return String(
+            value ?? ""
+        )
 
-            .replace(
-                /&/g,
-                "&amp;"
-            )
+        .replace(
+            /&/g,
+            "&amp;"
+        )
 
-            .replace(
-                /</g,
-                "&lt;"
-            )
+        .replace(
+            /</g,
+            "&lt;"
+        )
 
-            .replace(
-                />/g,
-                "&gt;"
-            )
+        .replace(
+            />/g,
+            "&gt;"
+        )
 
-            .replace(
-                /"/g,
-                "&quot;"
-            )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
 
-            .replace(
-                /'/g,
-                "&#039;"
-            );
+        .replace(
+            /'/g,
+            "&#039;"
+        );
 
     }
 
+
+    // ==========================================
+    // ATTRIBUTE SECURITY HELPER
+    // ==========================================
 
     function escapeAttribute(value) {
 
-        return String(value)
+        return String(
+            value ?? ""
+        )
 
-            .replace(
-                /"/g,
-                "&quot;"
-            )
+        .replace(
+            /&/g,
+            "&amp;"
+        )
 
-            .replace(
-                /'/g,
-                "&#039;"
-            );
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+
+        .replace(
+            /'/g,
+            "&#039;"
+        )
+
+        .replace(
+            /</g,
+            "&lt;"
+        )
+
+        .replace(
+            />/g,
+            "&gt;"
+        );
 
     }
+
 
 </script>
 
 </body>
 
 </html>
+
