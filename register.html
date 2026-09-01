@@ -1,268 +1,429 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Prompt Forge | Participant Registration</title>
+    <meta charset="UTF-8">
 
-  <link rel="stylesheet" href="style.css">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Prompt Forge | Participant Registration</title>
+
+    <link rel="stylesheet" href="style.css">
+
 </head>
+
 
 <body class="auth-page">
 
-  <div class="auth-card">
 
-    <div class="auth-logo">⚡</div>
+    <div class="auth-card">
 
-    <h1>Prompt Forge</h1>
-
-    <p>Participant Registration</p>
-
-    <input
-      type="text"
-      id="name"
-      placeholder="Full Name"
-      required
-    >
-
-    <input
-      type="text"
-      id="college"
-      placeholder="College Name"
-      required
-    >
-
-    <input
-      type="text"
-      id="department"
-      placeholder="Department"
-      required
-    >
-
-    <input
-      type="email"
-      id="email"
-      placeholder="Email Address"
-      required
-    >
-
-    <input
-      type="tel"
-      id="phone"
-      placeholder="Phone Number"
-      maxlength="10"
-      inputmode="numeric"
-      required
-    >
-
-    <button
-      class="btn btn-primary"
-      onclick="registerUser()"
-    >
-      Register Now
-    </button>
-
-    <p class="auth-link">
-      Already registered?
-      <a href="login.html">Login Here</a>
-    </p>
-
-  </div>
+        <div class="auth-logo">
+            ⚡
+        </div>
 
 
-  <script type="module">
-
-    import { db } from './firebase.js';
-
-    import {
-      collection,
-      addDoc,
-      query,
-      where,
-      getDocs
-    } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+        <h1>
+            Prompt Forge
+        </h1>
 
 
-    window.registerUser = async function () {
-
-      // Get values
-      const fullName =
-        document.getElementById('name').value.trim();
-
-      const college =
-        document.getElementById('college').value.trim();
-
-      const department =
-        document.getElementById('department').value.trim();
-
-      const email =
-        document.getElementById('email').value.trim().toLowerCase();
-
-      const phone =
-        document.getElementById('phone').value.trim();
+        <p>
+            Participant Registration
+        </p>
 
 
-      // ==========================================
-      // CHECK EMPTY FIELDS
-      // ==========================================
+        <!-- ======================================
+             FULL NAME
+        ======================================= -->
 
-      if (
-        !fullName ||
-        !college ||
-        !department ||
-        !email ||
-        !phone
-      ) {
-
-        alert('Please fill all fields');
-
-        return;
-      }
+        <input
+            type="text"
+            id="name"
+            placeholder="Full Name"
+            autocomplete="name"
+            required
+        >
 
 
-      // ==========================================
-      // GMAIL VALIDATION
-      // Only @gmail.com allowed
-      // ==========================================
+        <!-- ======================================
+             COLLEGE
+        ======================================= -->
 
-      const gmailPattern =
-        /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
-
-
-      if (!gmailPattern.test(email)) {
-
-        alert(
-          'Invalid email! Please enter a valid @gmail.com email address.'
-        );
-
-        document.getElementById('email').focus();
-
-        return;
-      }
+        <input
+            type="text"
+            id="college"
+            placeholder="College Name"
+            required
+        >
 
 
-      // ==========================================
-      // MOBILE NUMBER VALIDATION
-      // Exactly 10 digits
-      // ==========================================
+        <!-- ======================================
+             DEPARTMENT
+        ======================================= -->
 
-      const phonePattern =
-        /^[0-9]{10}$/;
-
-
-      if (!phonePattern.test(phone)) {
-
-        alert(
-          'Invalid mobile number! Please enter exactly 10 digits.'
-        );
-
-        document.getElementById('phone').focus();
-
-        return;
-      }
+        <input
+            type="text"
+            id="department"
+            placeholder="Department"
+            required
+        >
 
 
-      // ==========================================
-      // FIREBASE DATABASE
-      // ==========================================
+        <!-- ======================================
+             EMAIL
+        ======================================= -->
 
-      try {
-
-        // Check whether email already exists
-
-        const q = query(
-          collection(db, 'users'),
-          where('email', '==', email)
-        );
-
-
-        const existing =
-          await getDocs(q);
+        <input
+            type="email"
+            id="email"
+            placeholder="Email Address"
+            autocomplete="email"
+            required
+        >
 
 
-        if (!existing.empty) {
+        <!-- ======================================
+             PHONE
+        ======================================= -->
 
-          alert('Email already registered');
+        <input
+            type="tel"
+            id="phone"
+            placeholder="Phone Number"
+            maxlength="10"
+            inputmode="numeric"
+            autocomplete="tel"
+            required
+        >
 
-          return;
-        }
+
+        <!-- ======================================
+             REGISTER BUTTON
+        ======================================= -->
+
+        <button
+            type="button"
+            id="registerBtn"
+            class="btn btn-primary"
+        >
+            Register Now
+        </button>
+
+
+        <p class="auth-link">
+
+            Already registered?
+
+            <a href="login.html">
+                Login Here
+            </a>
+
+        </p>
+
+
+    </div>
+
+
+    <script>
 
 
         // ==========================================
-        // SAVE USER
+        // ELEMENTS
         // ==========================================
 
-        await addDoc(
-          collection(db, 'users'),
-          {
+        const registerBtn =
+            document.getElementById("registerBtn");
 
-            fullName: fullName,
 
-            college: college,
+        const nameInput =
+            document.getElementById("name");
 
-            department: department,
 
-            email: email,
+        const collegeInput =
+            document.getElementById("college");
 
-            phone: phone,
 
-            emailApproved: false,
+        const departmentInput =
+            document.getElementById("department");
 
-            registeredAt:
-              new Date().toLocaleString()
 
-          }
+        const emailInput =
+            document.getElementById("email");
+
+
+        const phoneInput =
+            document.getElementById("phone");
+
+
+        // ==========================================
+        // PHONE - NUMBERS ONLY
+        // ==========================================
+
+        phoneInput.addEventListener(
+            "input",
+            function () {
+
+                this.value =
+                    this.value
+                        .replace(/[^0-9]/g, "")
+                        .slice(0, 10);
+
+            }
         );
 
 
         // ==========================================
-        // SUCCESS
+        // REGISTER
         // ==========================================
 
-        alert(
-          'Registration successful. Wait for admin approval.'
+        registerBtn.addEventListener(
+            "click",
+            async function () {
+
+
+                // ----------------------------------
+                // GET VALUES
+                // ----------------------------------
+
+                const fullName =
+                    nameInput.value.trim();
+
+
+                const college =
+                    collegeInput.value.trim();
+
+
+                const department =
+                    departmentInput.value.trim();
+
+
+                const email =
+                    emailInput.value
+                        .trim()
+                        .toLowerCase();
+
+
+                const phone =
+                    phoneInput.value.trim();
+
+
+                // ----------------------------------
+                // EMPTY FIELD CHECK
+                // ----------------------------------
+
+                if (
+                    !fullName ||
+                    !college ||
+                    !department ||
+                    !email ||
+                    !phone
+                ) {
+
+                    alert(
+                        "Please fill all fields."
+                    );
+
+                    return;
+
+                }
+
+
+                // ----------------------------------
+                // GMAIL VALIDATION
+                // ----------------------------------
+
+                const gmailPattern =
+                    /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+
+
+                if (
+                    !gmailPattern.test(email)
+                ) {
+
+                    alert(
+                        "Please enter a valid Gmail address."
+                    );
+
+                    emailInput.focus();
+
+                    return;
+
+                }
+
+
+                // ----------------------------------
+                // PHONE VALIDATION
+                // ----------------------------------
+
+                const phonePattern =
+                    /^[0-9]{10}$/;
+
+
+                if (
+                    !phonePattern.test(phone)
+                ) {
+
+                    alert(
+                        "Please enter exactly 10 digits for the phone number."
+                    );
+
+                    phoneInput.focus();
+
+                    return;
+
+                }
+
+
+                // ----------------------------------
+                // DISABLE BUTTON
+                // ----------------------------------
+
+                registerBtn.disabled =
+                    true;
+
+
+                registerBtn.innerText =
+                    "Registering...";
+
+
+                try {
+
+
+                    // =================================
+                    // SEND TO EXPRESS BACKEND
+                    // =================================
+
+                    const response =
+                        await fetch(
+                            "/register",
+                            {
+
+                                method: "POST",
+
+                                headers: {
+                                    "Content-Type":
+                                        "application/json"
+                                },
+
+                                body:
+                                    JSON.stringify({
+
+                                        fullName:
+                                            fullName,
+
+                                        college:
+                                            college,
+
+                                        department:
+                                            department,
+
+                                        email:
+                                            email,
+
+                                        phone:
+                                            phone
+
+                                    })
+
+                            }
+                        );
+
+
+                    // =================================
+                    // CHECK SERVER RESPONSE
+                    // =================================
+
+                    if (!response.ok) {
+
+                        throw new Error(
+                            "Server returned HTTP " +
+                            response.status
+                        );
+
+                    }
+
+
+                    const data =
+                        await response.json();
+
+
+                    // =================================
+                    // REGISTRATION FAILED
+                    // =================================
+
+                    if (!data.success) {
+
+                        alert(
+                            data.message ||
+                            "Registration failed."
+                        );
+
+                        return;
+
+                    }
+
+
+                    // =================================
+                    // SUCCESS
+                    // =================================
+
+                    alert(
+                        "✅ Registration successful!\n\n" +
+                        "Please wait for admin approval."
+                    );
+
+
+                    // =================================
+                    // REDIRECT
+                    // =================================
+
+                    window.location.href =
+                        "login.html";
+
+
+                }
+
+                catch (error) {
+
+
+                    console.error(
+                        "Registration error:",
+                        error
+                    );
+
+
+                    alert(
+                        "❌ Registration failed.\n\n" +
+                        "Make sure the Prompt Forge server is running."
+                    );
+
+                }
+
+                finally {
+
+
+                    registerBtn.disabled =
+                        false;
+
+
+                    registerBtn.innerText =
+                        "Register Now";
+
+                }
+
+            }
         );
 
+    </script>
 
-        // Go to login page
-
-        window.location.href =
-          'login.html';
-
-
-      }
-
-      catch (error) {
-
-        console.error(error);
-
-        alert(
-          'Registration failed: ' +
-          error.message
-        );
-
-      }
-
-    };
-
-
-    // ==========================================
-    // MOBILE INPUT
-    // Allow numbers only
-    // ==========================================
-
-    document
-      .getElementById('phone')
-      .addEventListener('input', function () {
-
-        this.value =
-          this.value.replace(/[^0-9]/g, '');
-
-      });
-
-  </script>
 
 </body>
+
 </html>
+```
