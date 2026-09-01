@@ -54,7 +54,7 @@
     >
 
 
-    <!-- Login -->
+    <!-- Login Button -->
 
     <button
         class="btn btn-primary"
@@ -76,292 +76,250 @@
 
     </p>
 
-
-    <!-- Admin -->
-
-    <p class="auth-link">
-
-        <a href="admin-login.html">
-            Admin Login
-        </a>
-
-    </p>
-
 </div>
-```
+
 
 <script type="module">
 
-/* =====================================================
-   FIREBASE
-===================================================== */
+    /* =====================================================
+       FIREBASE
+    ===================================================== */
 
-import { db } from "./firebase.js";
+    import { db } from "./firebase.js";
 
-import {
-    collection,
-    query,
-    where,
-    getDocs
-}
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-
-/* =====================================================
-   ELEMENTS
-===================================================== */
-
-const emailInput =
-    document.getElementById("email");
-
-const loginBtn =
-    document.getElementById("loginBtn");
+    import {
+        collection,
+        query,
+        where,
+        getDocs
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 
-/* =====================================================
-   PARTICIPANT LOGIN
-===================================================== */
+    /* =====================================================
+       ELEMENTS
+    ===================================================== */
 
-async function loginParticipant() {
+    const emailInput =
+        document.getElementById("email");
 
-    const email =
-        emailInput.value
-            .trim()
-            .toLowerCase();
-
-
-    /* =================================================
-       VALIDATION
-    ================================================= */
-
-    if (!email) {
-
-        alert(
-            "Enter your registered email"
-        );
-
-        emailInput.focus();
-
-        return;
-
-    }
+    const loginBtn =
+        document.getElementById("loginBtn");
 
 
-    loginBtn.disabled = true;
+    /* =====================================================
+       PARTICIPANT LOGIN
+    ===================================================== */
 
-    loginBtn.innerText =
-        "Checking...";
+    async function loginParticipant() {
 
-
-    try {
-
-        /* =============================================
-           FIND USER
-        ============================================= */
-
-        const q =
-            query(
-                collection(
-                    db,
-                    "users"
-                ),
-                where(
-                    "email",
-                    "==",
-                    email
-                )
-            );
+        const email =
+            emailInput.value
+                .trim()
+                .toLowerCase();
 
 
-        const snapshot =
-            await getDocs(q);
+        /* =================================================
+           VALIDATION
+        ================================================= */
 
-
-        /* =============================================
-           USER NOT FOUND
-        ============================================= */
-
-        if (snapshot.empty) {
+        if (!email) {
 
             alert(
-                "Email not registered"
+                "Enter your registered email"
             );
+
+            emailInput.focus();
 
             return;
 
         }
 
 
-        /* =============================================
-           GET USER
-        ============================================= */
-
-        const user =
-            snapshot.docs[0].data();
-
-
-        /* =============================================
-           CHECK APPROVAL
-        ============================================= */
-
-        if (
-            user.emailApproved !== true
-        ) {
-
-            alert(
-                "Waiting for admin approval"
-            );
-
-            return;
-
-        }
-
-
-        /* =============================================
-           CLEAR OLD SESSION
-        ============================================= */
-
-        localStorage.removeItem(
-            "submissionCompleted"
-        );
-
-        localStorage.removeItem(
-            "timerStart"
-        );
-
-
-        /* =============================================
-           SAVE PARTICIPANT
-        ============================================= */
-
-        localStorage.setItem(
-            "currentUser",
-            user.fullName || "Participant"
-        );
-
-
-        localStorage.setItem(
-            "currentEmail",
-            user.email || email
-        );
-
-
-        /* =============================================
-           START 20 MINUTE TIMER
-           
-           IMPORTANT:
-           Timer starts HERE when login succeeds.
-        ============================================= */
-
-        const timerStart =
-            Date.now();
-
-
-        localStorage.setItem(
-            "timerStart",
-            timerStart.toString()
-        );
-
-
-        /* =============================================
-           ENTER COMPETITION
-        ============================================= */
-
-        window.location.href =
-            "battle.html";
-
-    }
-
-
-    catch (error) {
-
-        console.error(
-            "Participant login error:",
-            error
-        );
-
-
-        alert(
-            "Login failed:\n\n" +
-            error.message
-        );
-
-    }
-
-
-    finally {
-
-        loginBtn.disabled = false;
+        loginBtn.disabled = true;
 
         loginBtn.innerText =
-            "Enter Competition";
-
-    }
-
-}
+            "Checking...";
 
 
-/* =====================================================
-   LOGIN BUTTON
-===================================================== */
+        try {
 
-loginBtn.addEventListener(
-    "click",
-    loginParticipant
-);
+            /* =============================================
+               FIND PARTICIPANT
+            ============================================= */
 
+            const q =
+                query(
+                    collection(
+                        db,
+                        "users"
+                    ),
 
-/* =====================================================
-   ENTER KEY
-===================================================== */
-
-emailInput.addEventListener(
-    "keydown",
-    function(event) {
-
-        if (
-            event.key === "Enter"
-        ) {
-
-            event.preventDefault();
-
-            loginParticipant();
-
-        }
-
-    }
-);
+                    where(
+                        "email",
+                        "==",
+                        email
+                    )
+                );
 
 
-/* =====================================================
-   ADMIN SHORTCUT
-===================================================== */
+            const snapshot =
+                await getDocs(q);
 
-document.addEventListener(
-    "keydown",
-    function(event) {
 
-        if (
+            /* =============================================
+               NOT REGISTERED
+            ============================================= */
 
-            event.ctrlKey &&
+            if (snapshot.empty) {
 
-            event.shiftKey &&
+                alert(
+                    "Email not registered"
+                );
 
-            event.key.toLowerCase() === "a"
+                return;
 
-        ) {
+            }
 
-            event.preventDefault();
+
+            /* =============================================
+               GET PARTICIPANT DATA
+            ============================================= */
+
+            const user =
+                snapshot.docs[0].data();
+
+
+            /* =============================================
+               CHECK ADMIN APPROVAL
+            ============================================= */
+
+            if (
+                user.emailApproved !== true
+            ) {
+
+                alert(
+                    "Waiting for admin approval"
+                );
+
+                return;
+
+            }
+
+
+            /* =============================================
+               CLEAR OLD SESSION
+            ============================================= */
+
+            localStorage.removeItem(
+                "submissionCompleted"
+            );
+
+            localStorage.removeItem(
+                "timerStart"
+            );
+
+
+            /* =============================================
+               SAVE PARTICIPANT
+            ============================================= */
+
+            localStorage.setItem(
+                "currentUser",
+                user.fullName || "Participant"
+            );
+
+
+            localStorage.setItem(
+                "currentEmail",
+                user.email || email
+            );
+
+
+            /* =============================================
+               START 20 MINUTE TIMER
+            ============================================= */
+
+            const timerStart =
+                Date.now();
+
+
+            localStorage.setItem(
+                "timerStart",
+                timerStart.toString()
+            );
+
+
+            /* =============================================
+               OPEN COMPETITION
+            ============================================= */
 
             window.location.href =
-                "admin-login.html";
+                "battle.html";
+
+        }
+
+
+        catch (error) {
+
+            console.error(
+                "Participant login error:",
+                error
+            );
+
+
+            alert(
+                "Login failed:\n\n" +
+                error.message
+            );
+
+        }
+
+
+        finally {
+
+            loginBtn.disabled = false;
+
+            loginBtn.innerText =
+                "Enter Competition";
 
         }
 
     }
-);
+
+
+    /* =====================================================
+       LOGIN BUTTON
+    ===================================================== */
+
+    loginBtn.addEventListener(
+        "click",
+        loginParticipant
+    );
+
+
+    /* =====================================================
+       ENTER KEY
+    ===================================================== */
+
+    emailInput.addEventListener(
+        "keydown",
+        function(event) {
+
+            if (
+                event.key === "Enter"
+            ) {
+
+                event.preventDefault();
+
+                loginParticipant();
+
+            }
+
+        }
+    );
 
 </script>
+```
 
 </body>
 
