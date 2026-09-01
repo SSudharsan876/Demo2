@@ -1,8 +1,9 @@
+```html
 <!DOCTYPE html>
-
 <html lang="en">
 
 <head>
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -12,35 +13,26 @@
 
   <style>
 
-    /* ================================
-       RESET
-    ================================= */
-
     * {
       box-sizing: border-box;
-      margin: 0;
-      padding: 0;
     }
 
     body {
+      margin: 0;
       min-height: 100vh;
       font-family: Arial, Helvetica, sans-serif;
       background:
         radial-gradient(circle at top left, #1e1b4b, transparent 35%),
         radial-gradient(circle at bottom right, #312e81, transparent 35%),
         #080b16;
-      color: #ffffff;
+      color: #fff;
     }
-
-    /* ================================
-       MAIN CONTAINER
-    ================================= */
 
     .container {
       width: 100%;
       max-width: 1200px;
       margin: auto;
-      padding: 35px 25px 60px;
+      padding: 30px 20px 60px;
     }
 
     /* ================================
@@ -50,9 +42,8 @@
     .timer-box {
       width: 100%;
       max-width: 420px;
-      margin: 0 auto 35px;
+      margin: 0 auto 30px;
       padding: 18px 25px;
-
       text-align: center;
 
       background: rgba(17, 24, 39, 0.95);
@@ -69,14 +60,13 @@
       text-transform: uppercase;
       letter-spacing: 2px;
       color: #a5b4fc;
-      margin-bottom: 5px;
+      margin-bottom: 6px;
     }
 
     #timer {
       font-size: 42px;
       font-weight: 800;
       letter-spacing: 3px;
-      color: #ffffff;
     }
 
     .timer-warning {
@@ -89,9 +79,11 @@
     }
 
     @keyframes timerPulse {
+
       50% {
-        opacity: 0.55;
+        opacity: 0.5;
       }
+
     }
 
     /* ================================
@@ -105,21 +97,19 @@
       gap: 30px;
 
       padding: 30px;
-
       margin-bottom: 30px;
 
-      background: rgba(15, 23, 42, 0.82);
+      background: rgba(15, 23, 42, 0.88);
       border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 22px;
 
-      box-shadow: 0 15px 50px rgba(0, 0, 0, 0.25);
+      box-shadow:
+        0 15px 50px rgba(0, 0, 0, 0.25);
     }
 
     .badge {
       display: inline-block;
-
       padding: 7px 14px;
-
       border-radius: 50px;
 
       background: rgba(124, 58, 237, 0.18);
@@ -129,13 +119,12 @@
 
       font-size: 12px;
       font-weight: 700;
-
       text-transform: uppercase;
       letter-spacing: 1px;
     }
 
     .workspace-header h1 {
-      margin-top: 12px;
+      margin: 12px 0 0;
 
       font-size: clamp(36px, 5vw, 58px);
       line-height: 1;
@@ -153,7 +142,6 @@
 
     .workspace-header p {
       margin-top: 12px;
-
       max-width: 650px;
 
       color: #94a3b8;
@@ -167,7 +155,6 @@
 
     .participant-chip {
       min-width: 190px;
-
       padding: 15px 20px;
 
       border-radius: 15px;
@@ -186,30 +173,26 @@
       letter-spacing: 1px;
 
       color: #64748b;
-
       margin-bottom: 5px;
     }
 
     .participant-chip strong {
       display: block;
 
-      color: #ffffff;
+      color: #fff;
       font-size: 16px;
 
       word-break: break-word;
     }
 
     /* ================================
-       WORKSPACE GRID
+       GRID
     ================================= */
 
     .workspace-grid {
       display: grid;
-
       grid-template-columns: 1fr 1fr;
-
       gap: 25px;
-
       align-items: stretch;
     }
 
@@ -222,25 +205,24 @@
       flex-direction: column;
 
       padding: 28px;
-
       min-height: 420px;
 
       background: rgba(15, 23, 42, 0.88);
 
       border: 1px solid rgba(255, 255, 255, 0.08);
-
       border-radius: 22px;
 
-      box-shadow: 0 15px 50px rgba(0, 0, 0, 0.22);
+      box-shadow:
+        0 15px 50px rgba(0, 0, 0, 0.22);
     }
 
     .workspace-panel h2 {
+      margin: 0;
       font-size: 20px;
-      margin-bottom: 8px;
     }
 
     /* ================================
-       TEXTAREA
+       PROMPT
     ================================= */
 
     #prompt {
@@ -250,22 +232,18 @@
       resize: vertical;
 
       margin-top: 15px;
-
       padding: 18px;
 
       border-radius: 15px;
-
       border: 1px solid #334155;
 
       background: #020617;
-
-      color: #ffffff;
+      color: #fff;
 
       outline: none;
 
       font-family: inherit;
       font-size: 14px;
-
       line-height: 1.6;
     }
 
@@ -288,7 +266,6 @@
       width: 100%;
 
       margin-top: 18px;
-
       padding: 14px 20px;
 
       border: none;
@@ -303,7 +280,7 @@
     }
 
     .btn-primary {
-      color: white;
+      color: #fff;
 
       background: linear-gradient(
         135deg,
@@ -337,7 +314,6 @@
       min-height: 280px;
 
       margin-top: 15px;
-
       padding: 20px;
 
       border: 2px dashed #334155;
@@ -356,11 +332,9 @@
 
     #imageUpload {
       width: 100%;
-
       padding: 10px;
 
       color: #cbd5e1;
-
       font-size: 13px;
     }
 
@@ -385,17 +359,7 @@
       color: #64748b;
 
       font-size: 12px;
-
       line-height: 1.5;
-    }
-
-    /* ================================
-       SUCCESS STATE
-    ================================= */
-
-    .submitted {
-      pointer-events: none;
-      opacity: 0.65;
     }
 
     /* ================================
@@ -410,7 +374,7 @@
 
       .workspace-header {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: stretch;
       }
 
       .participant-chip {
@@ -428,255 +392,324 @@
       #timer {
         font-size: 36px;
       }
+
     }
 
   </style>
 
 </head>
 
+
 <body>
 
 <div class="container">
 
-  <!-- ================================
+
+  <!-- ==========================================
        TIMER
-  ================================= -->
+  =========================================== -->
 
   <div class="timer-box" id="timerBox">
 
-```
-<div class="timer-label">
-  Time Remaining
-</div>
+    <div class="timer-label">
+      Time Remaining
+    </div>
 
-<div id="timer">
-  20:00
-</div>
-```
+    <div id="timer">
+      20:00
+    </div>
 
   </div>
 
-  <!-- ================================
+
+  <!-- ==========================================
        HEADER
-  ================================= -->
+  =========================================== -->
 
   <div class="workspace-header">
 
-```
-<div>
+    <div>
 
-  <span class="badge">
-    AI Design Workspace
-  </span>
+      <span class="badge">
+        AI Design Workspace
+      </span>
 
-  <h1>
-    Prompt Forge
-  </h1>
+      <h1>
+        Prompt Forge
+      </h1>
 
-  <p>
-    Create your design using Canva AI and submit your final artwork.
-    Make every prompt count and showcase your creativity.
-  </p>
+      <p>
+        Create your design using Canva AI and submit
+        your final artwork. Make every prompt count
+        and showcase your creativity.
+      </p>
 
-</div>
+    </div>
 
 
-<div class="participant-chip">
+    <div class="participant-chip">
 
-  <span>
-    Participant
-  </span>
+      <span>
+        Participant
+      </span>
 
-  <strong id="user">
-    Guest
-  </strong>
+      <strong id="user">
+        Guest
+      </strong>
 
-</div>
-```
+    </div>
 
   </div>
 
-  <!-- ================================
+
+  <!-- ==========================================
        WORKSPACE
-  ================================= -->
+  =========================================== -->
 
   <div class="workspace-grid">
 
-```
-<!-- PROMPT PANEL -->
 
-<div class="workspace-panel">
+    <!-- ========================================
+         PROMPT PANEL
+    ========================================= -->
 
-  <h2>
-    Design Prompt
-  </h2>
+    <div class="workspace-panel">
 
-  <textarea
-    id="prompt"
-    placeholder="Describe your poster, logo, banner, or creative concept...
-```
+      <h2>
+        Design Prompt
+      </h2>
+
+
+      <textarea
+        id="prompt"
+        placeholder="Describe your poster, logo, banner, or creative concept...
 
 Example:
 Design a premium A3 vertical college symposium poster for Prompt Forge with futuristic AI visuals, blue and purple neon lighting, bold typography, holographic interface elements, and a professional tech event aesthetic."
-></textarea>
-
-```
-  <button
-    id="generateBtn"
-    class="btn btn-primary"
-  >
-    🚀 Launch Canva AI
-  </button>
+      ></textarea>
 
 
-  <p
-    id="loading"
-    class="helper-text"
-  ></p>
+      <button
+        id="generateBtn"
+        class="btn btn-primary"
+      >
+        🚀 Launch Canva AI
+      </button>
 
-</div>
+
+      <p
+        id="loading"
+        class="helper-text"
+      ></p>
+
+    </div>
 
 
-<!-- UPLOAD PANEL -->
+    <!-- ========================================
+         UPLOAD PANEL
+    ========================================= -->
 
-<div class="workspace-panel">
+    <div class="workspace-panel">
 
-  <h2>
-    Upload Final Design
-  </h2>
+      <h2>
+        Upload Final Design
+      </h2>
 
-  <div class="upload-box">
 
-    <input
-      type="file"
-      id="imageUpload"
-      accept="image/png,image/jpeg,image/jpg,image/webp"
-    >
+      <div class="upload-box">
 
-    <img
-      id="preview"
-      class="preview-image"
-      style="display:none;"
-      alt="Design preview"
-    >
+        <input
+          type="file"
+          id="imageUpload"
+          accept="image/png,image/jpeg,image/jpg,image/webp"
+        >
+
+
+        <img
+          id="preview"
+          class="preview-image"
+          style="display:none;"
+          alt="Design preview"
+        >
+
+      </div>
+
+
+      <button
+        id="submitBtn"
+        class="btn btn-primary"
+      >
+        ✅ Submit Design
+      </button>
+
+
+      <p class="helper-text">
+
+        Only your final Canva-generated design
+        should be submitted.
+
+        After submission, your session will end
+        automatically.
+
+      </p>
+
+    </div>
+
 
   </div>
 
-
-  <button
-    id="submitBtn"
-    class="btn btn-primary"
-  >
-    ✅ Submit Design
-  </button>
-
-
-  <p class="helper-text">
-    Only your final Canva-generated design should be submitted.
-    After submission, your session will end automatically.
-  </p>
-
 </div>
-```
 
-  </div>
-
-</div>
 
 <script type="module">
 
-import { db } from './firebase.js';
+/* =====================================================
+   FIREBASE
+===================================================== */
+
+import { db } from "./firebase.js";
 
 import {
   collection,
   addDoc
-} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 
-// =====================================================
-// USER
-// =====================================================
+/* =====================================================
+   PARTICIPANT INFORMATION
+===================================================== */
 
 const currentUser =
-  localStorage.getItem('currentUser') || 'Guest';
+  localStorage.getItem("currentUser") || "Guest";
 
 const currentEmail =
-  localStorage.getItem('currentEmail') || '';
+  localStorage.getItem("currentEmail") || "";
 
-document.getElementById('user').innerText =
+
+document.getElementById("user").innerText =
   currentUser;
 
 
-// =====================================================
-// ELEMENTS
-// =====================================================
+/* =====================================================
+   ELEMENTS
+===================================================== */
 
 const imageInput =
-  document.getElementById('imageUpload');
+  document.getElementById("imageUpload");
 
 const preview =
-  document.getElementById('preview');
+  document.getElementById("preview");
 
 const promptInput =
-  document.getElementById('prompt');
+  document.getElementById("prompt");
 
 const submitBtn =
-  document.getElementById('submitBtn');
+  document.getElementById("submitBtn");
 
 const generateBtn =
-  document.getElementById('generateBtn');
+  document.getElementById("generateBtn");
 
 const loading =
-  document.getElementById('loading');
+  document.getElementById("loading");
 
 const timerElement =
-  document.getElementById('timer');
+  document.getElementById("timer");
 
 
-// =====================================================
-// CANVA AI
-// =====================================================
+/* =====================================================
+   TIMER SETTINGS
+===================================================== */
 
-generateBtn.addEventListener('click', () => {
-
-  const prompt =
-    promptInput.value.trim();
+const TIMER_DURATION =
+  20 * 60 * 1000;
 
 
-  if (!prompt) {
+/* =====================================================
+   GET TIMER START
+===================================================== */
 
-    alert('Please enter your design prompt first.');
-
-    promptInput.focus();
-
-    return;
-
-  }
-
-
-  const canvaLink =
-    `https://www.canva.com/ai-image-generator/?prompt=${encodeURIComponent(prompt)}`;
-
-
-  window.open(
-    canvaLink,
-    '_blank'
+let timerStart =
+  Number(
+    localStorage.getItem("timerStart")
   );
 
 
-  loading.innerText =
-    'Canva AI opened in a new tab. Generate your design, download it, and upload the final artwork here.';
+/*
+   IMPORTANT:
 
-});
+   Do NOT create a new timer automatically
+   if timerStart does not exist.
+
+   This prevents someone from opening
+   workspace.html directly and receiving
+   a fresh 20 minutes.
+*/
+
+if (
+  !timerStart ||
+  !Number.isFinite(timerStart)
+) {
+
+  alert(
+    "Your session is not active. Please login again."
+  );
+
+  window.location.href =
+    "login.html";
+
+}
 
 
-// =====================================================
-// IMAGE PREVIEW
-// =====================================================
+/* =====================================================
+   CANVA AI
+===================================================== */
+
+generateBtn.addEventListener(
+  "click",
+  function () {
+
+    const prompt =
+      promptInput.value.trim();
+
+
+    if (!prompt) {
+
+      alert(
+        "Please enter your design prompt first."
+      );
+
+      promptInput.focus();
+
+      return;
+
+    }
+
+
+    const canvaLink =
+      "https://www.canva.com/ai-image-generator/?prompt=" +
+      encodeURIComponent(prompt);
+
+
+    window.open(
+      canvaLink,
+      "_blank"
+    );
+
+
+    loading.innerText =
+      "Canva AI opened in a new tab. Generate your design, download it, and upload the final artwork here.";
+
+  }
+);
+
+
+/* =====================================================
+   IMAGE PREVIEW
+===================================================== */
 
 imageInput.addEventListener(
-  'change',
-  (event) => {
+  "change",
+  function (event) {
 
     const file =
       event.target.files[0];
@@ -684,18 +717,23 @@ imageInput.addEventListener(
 
     if (!file) {
 
-      preview.style.display = 'none';
+      preview.style.display =
+        "none";
 
       return;
 
     }
 
 
-    if (!file.type.startsWith('image/')) {
+    if (
+      !file.type.startsWith("image/")
+    ) {
 
-      alert('Please select an image file.');
+      alert(
+        "Please select an image file."
+      );
 
-      imageInput.value = '';
+      imageInput.value = "";
 
       return;
 
@@ -707,13 +745,13 @@ imageInput.addEventListener(
 
 
     reader.onload =
-      (e) => {
+      function (e) {
 
         preview.src =
           e.target.result;
 
         preview.style.display =
-          'block';
+          "block";
 
       };
 
@@ -724,41 +762,78 @@ imageInput.addEventListener(
 );
 
 
-// =====================================================
-// LOGOUT FUNCTION
-// =====================================================
+/* =====================================================
+   LOGOUT
+===================================================== */
 
 function logoutUser() {
 
-  localStorage.removeItem('currentUser');
+  localStorage.removeItem(
+    "currentUser"
+  );
 
-  localStorage.removeItem('currentEmail');
+  localStorage.removeItem(
+    "currentEmail"
+  );
 
-  localStorage.removeItem('timerStart');
-
-  localStorage.removeItem('submissionCompleted');
+  localStorage.removeItem(
+    "timerStart"
+  );
 
 }
 
 
-// =====================================================
-// SUBMIT DESIGN
-// =====================================================
+/* =====================================================
+   FORMAT TIME
+===================================================== */
+
+function formatTimeUsed(totalSeconds) {
+
+  const minutes =
+    Math.floor(
+      totalSeconds / 60
+    );
+
+
+  const seconds =
+    totalSeconds % 60;
+
+
+  return (
+    minutes +
+    " min " +
+    String(seconds).padStart(2, "0") +
+    " sec"
+  );
+
+}
+
+
+/* =====================================================
+   SUBMIT DESIGN
+===================================================== */
 
 submitBtn.addEventListener(
-  'click',
-  async () => {
+  "click",
+  async function () {
 
     const file =
       imageInput.files[0];
+
 
     const prompt =
       promptInput.value.trim();
 
 
+    /* ==========================================
+       VALIDATION
+    ========================================== */
+
     if (!prompt) {
 
-      alert('Please enter your design prompt.');
+      alert(
+        "Please enter your design prompt."
+      );
 
       promptInput.focus();
 
@@ -769,48 +844,147 @@ submitBtn.addEventListener(
 
     if (!file) {
 
-      alert('Please upload your final design first.');
+      alert(
+        "Please upload your final design first."
+      );
 
       return;
 
     }
 
 
-    submitBtn.disabled = true;
+    /* ==========================================
+       GET TIMER AGAIN
+    ========================================== */
 
-    generateBtn.disabled = true;
+    timerStart =
+      Number(
+        localStorage.getItem("timerStart")
+      );
+
+
+    if (
+      !timerStart ||
+      !Number.isFinite(timerStart)
+    ) {
+
+      alert(
+        "Your timer session could not be found. Please login again."
+      );
+
+      logoutUser();
+
+      window.location.href =
+        "login.html";
+
+      return;
+
+    }
+
+
+    /* ==========================================
+       CALCULATE TIME USED
+    ========================================== */
+
+    const now =
+      Date.now();
+
+
+    let timeUsedSeconds =
+      Math.floor(
+        (now - timerStart) / 1000
+      );
+
+
+    /* Prevent negative values */
+
+    if (
+      timeUsedSeconds < 0
+    ) {
+
+      timeUsedSeconds = 0;
+
+    }
+
+
+    /* Maximum 20 minutes */
+
+    if (
+      timeUsedSeconds >
+      20 * 60
+    ) {
+
+      timeUsedSeconds =
+        20 * 60;
+
+    }
+
+
+    const timeUsed =
+      formatTimeUsed(
+        timeUsedSeconds
+      );
+
+
+    console.log(
+      "Timer started:",
+      new Date(
+        timerStart
+      ).toISOString()
+    );
+
+
+    console.log(
+      "Time used:",
+      timeUsed
+    );
+
+
+    /* ==========================================
+       DISABLE BUTTONS
+    ========================================== */
+
+    submitBtn.disabled =
+      true;
+
+    generateBtn.disabled =
+      true;
+
+    imageInput.disabled =
+      true;
 
     submitBtn.innerText =
-      'Submitting...';
+      "Uploading...";
 
 
     try {
 
-      // ==========================================
-      // CLOUDINARY
-      // ==========================================
+
+      /* ========================================
+         CLOUDINARY
+      ======================================== */
 
       const formData =
         new FormData();
 
 
       formData.append(
-        'file',
+        "file",
         file
       );
 
 
       formData.append(
-        'upload_preset',
-        'ml_default'
+        "upload_preset",
+        "ml_default"
       );
 
 
       const uploadResponse =
         await fetch(
-          'https://api.cloudinary.com/v1_1/pydcirpp/image/upload',
+          "https://api.cloudinary.com/v1_1/pydcirpp/image/upload",
           {
-            method: 'POST',
+            method: "POST",
             body: formData
           }
         );
@@ -827,77 +1001,116 @@ submitBtn.addEventListener(
 
         throw new Error(
           uploadData.error?.message ||
-          'Cloudinary upload failed.'
+          "Cloudinary upload failed."
         );
 
       }
 
 
-      // ==========================================
-      // FIRESTORE
-      // ==========================================
+      /* ========================================
+         SAVE TO FIRESTORE
+      ======================================== */
+
+      submitBtn.innerText =
+        "Saving submission...";
+
+
+      const submissionData = {
+
+        participant:
+          currentUser,
+
+        email:
+          currentEmail,
+
+        prompt:
+          prompt,
+
+        image:
+          uploadData.secure_url,
+
+
+        /* ================================
+           TIMER INFORMATION
+        ================================= */
+
+        timerStart:
+          new Date(
+            timerStart
+          ).toISOString(),
+
+
+        submittedAt:
+          new Date(
+            now
+          ).toISOString(),
+
+
+        timeUsedSeconds:
+          timeUsedSeconds,
+
+
+        timeUsed:
+          timeUsed,
+
+
+        status:
+          "Submitted"
+
+      };
+
+
+      console.log(
+        "Saving submission:",
+        submissionData
+      );
+
 
       await addDoc(
         collection(
           db,
-          'submissions'
+          "submissions"
         ),
-        {
-
-          participant:
-            currentUser,
-
-          email:
-            currentEmail,
-
-          prompt:
-            prompt,
-
-          image:
-            uploadData.secure_url,
-
-          submittedAt:
-            new Date().toISOString(),
-
-          status:
-            'Submitted'
-
-        }
+        submissionData
       );
 
 
-      // ==========================================
-      // MARK SUBMISSION COMPLETE
-      // ==========================================
-
-      localStorage.setItem(
-        'submissionCompleted',
-        'true'
-      );
-
-
-      // ==========================================
-      // SUCCESS MESSAGE
-      // ==========================================
+      /* ========================================
+         SUCCESS
+      ======================================== */
 
       alert(
-        '🎉 Your design has been submitted successfully!\n\nThank you for participating in Prompt Forge.'
+        "🎉 Design submitted successfully!\n\n" +
+        "⏱️ Time used: " +
+        timeUsed +
+        "\n\n" +
+        "Thank you for participating in Prompt Forge!"
       );
 
 
-      // ==========================================
-      // LOGOUT
-      // ==========================================
+      /* ========================================
+         MARK COMPLETE
+      ======================================== */
+
+      localStorage.setItem(
+        "submissionCompleted",
+        "true"
+      );
+
+
+      /* ========================================
+         LOGOUT
+      ======================================== */
 
       logoutUser();
 
 
-      // ==========================================
-      // REDIRECT
-      // ==========================================
+      /* ========================================
+         REDIRECT
+      ======================================== */
 
       window.location.href =
-        'login.html';
+        "login.html";
 
     }
 
@@ -905,13 +1118,13 @@ submitBtn.addEventListener(
     catch (error) {
 
       console.error(
-        'Submission error:',
+        "SUBMISSION ERROR:",
         error
       );
 
 
       alert(
-        '❌ Submission failed.\n\n' +
+        "❌ Submission failed.\n\n" +
         error.message
       );
 
@@ -922,8 +1135,11 @@ submitBtn.addEventListener(
       generateBtn.disabled =
         false;
 
+      imageInput.disabled =
+        false;
+
       submitBtn.innerText =
-        '✅ Submit Design';
+        "✅ Submit Design";
 
     }
 
@@ -931,48 +1147,49 @@ submitBtn.addEventListener(
 );
 
 
-// =====================================================
-// 20 MINUTE TIMER
-// =====================================================
+/* =====================================================
+   TIMER EXPIRED
+===================================================== */
 
-const TIMER_DURATION =
-  20 * 60 * 1000;
+let timerInterval = null;
 
+let timerExpiredAlready =
+  false;
 
-// =====================================================
-// CREATE TIMER
-// =====================================================
-
-if (
-  !localStorage.getItem(
-    'timerStart'
-  )
-) {
-
-  localStorage.setItem(
-    'timerStart',
-    Date.now().toString()
-  );
-
-}
-
-
-// =====================================================
-// TIMER EXPIRED
-// =====================================================
 
 function timeExpired() {
 
-  clearInterval(
+  if (
+    timerExpiredAlready
+  ) {
+
+    return;
+
+  }
+
+
+  timerExpiredAlready =
+    true;
+
+
+  if (
     timerInterval
-  );
+  ) {
+
+    clearInterval(
+      timerInterval
+    );
+
+  }
 
 
   timerElement.innerText =
-    '00:00';
+    "00:00";
 
 
-  // Disable workspace
+  /* ==========================================
+     DISABLE WORKSPACE
+  ========================================== */
 
   submitBtn.disabled =
     true;
@@ -987,23 +1204,28 @@ function timeExpired() {
     true;
 
 
-  // Logout
+  /* ==========================================
+     LOGOUT
+  ========================================== */
 
   logoutUser();
 
 
-  // Thank you popup
+  /* ==========================================
+     THANK YOU POPUP
+  ========================================== */
 
   setTimeout(
-    () => {
+    function () {
 
       alert(
-        '⏰ Your time is over!\n\nThank you for participating in Prompt Forge. 🎨'
+        "⏰ Your time is over!\n\n" +
+        "Thank you for participating in Prompt Forge. 🎨"
       );
 
 
       window.location.href =
-        'login.html';
+        "login.html";
 
     },
     100
@@ -1012,29 +1234,26 @@ function timeExpired() {
 }
 
 
-// =====================================================
-// UPDATE TIMER
-// =====================================================
+/* =====================================================
+   UPDATE TIMER
+===================================================== */
 
 function updateTimer() {
 
-  const timerStart =
-    parseInt(
+  const start =
+    Number(
       localStorage.getItem(
-        'timerStart'
-      ),
-      10
+        "timerStart"
+      )
     );
 
 
   if (
-    isNaN(timerStart)
+    !start ||
+    !Number.isFinite(start)
   ) {
 
-    localStorage.setItem(
-      'timerStart',
-      Date.now().toString()
-    );
+    timeExpired();
 
     return;
 
@@ -1042,18 +1261,16 @@ function updateTimer() {
 
 
   const elapsed =
-    Date.now() -
-    timerStart;
+    Date.now() - start;
 
 
   const remaining =
-    TIMER_DURATION -
-    elapsed;
+    TIMER_DURATION - elapsed;
 
 
-  // ==========================================
-  // EXPIRED
-  // ==========================================
+  /* ==========================================
+     EXPIRED
+  ========================================== */
 
   if (
     remaining <= 0
@@ -1066,9 +1283,9 @@ function updateTimer() {
   }
 
 
-  // ==========================================
-  // TIME
-  // ==========================================
+  /* ==========================================
+     MINUTES
+  ========================================== */
 
   const minutes =
     Math.floor(
@@ -1076,27 +1293,39 @@ function updateTimer() {
     );
 
 
+  /* ==========================================
+     SECONDS
+  ========================================== */
+
   const seconds =
     Math.floor(
       (remaining % 60000) / 1000
     );
 
 
+  /* ==========================================
+     DISPLAY
+  ========================================== */
+
   timerElement.innerText =
-    String(minutes).padStart(
+    String(
+      minutes
+    ).padStart(
       2,
-      '0'
+      "0"
     ) +
-    ':' +
-    String(seconds).padStart(
+    ":" +
+    String(
+      seconds
+    ).padStart(
       2,
-      '0'
+      "0"
     );
 
 
-  // ==========================================
-  // WARNING COLORS
-  // ==========================================
+  /* ==========================================
+     WARNING
+  ========================================== */
 
   if (
     remaining <=
@@ -1104,11 +1333,15 @@ function updateTimer() {
   ) {
 
     timerElement.classList.add(
-      'timer-warning'
+      "timer-warning"
     );
 
   }
 
+
+  /* ==========================================
+     DANGER
+  ========================================== */
 
   if (
     remaining <=
@@ -1116,11 +1349,11 @@ function updateTimer() {
   ) {
 
     timerElement.classList.remove(
-      'timer-warning'
+      "timer-warning"
     );
 
     timerElement.classList.add(
-      'timer-danger'
+      "timer-danger"
     );
 
   }
@@ -1128,38 +1361,40 @@ function updateTimer() {
 }
 
 
-// =====================================================
-// START TIMER
-// =====================================================
+/* =====================================================
+   START TIMER
+===================================================== */
 
 updateTimer();
 
 
-const timerInterval =
+timerInterval =
   setInterval(
     updateTimer,
     1000
   );
 
 
-// =====================================================
-// PREVENT BACK/REFRESH AFTER SUBMISSION
-// =====================================================
+/* =====================================================
+   PREVENT ACCESS AFTER SUBMISSION
+===================================================== */
 
 if (
   localStorage.getItem(
-    'submissionCompleted'
-  ) === 'true'
+    "submissionCompleted"
+  ) === "true"
 ) {
 
   logoutUser();
 
   window.location.href =
-    'login.html';
+    "login.html";
 
 }
 
 </script>
 
 </body>
+
 </html>
+```
